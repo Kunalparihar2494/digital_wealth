@@ -1,0 +1,34 @@
+export interface IUser {
+  success: boolean;
+  message: string;
+  user: IUserDetail;
+  token: string;
+}
+
+export interface IUserDetail {
+  id: number;
+  username: string;
+  fullName: string;
+  email: string;
+  role: string;
+  status: number;
+  lastlogin: string;
+  createdByUserId: number;
+  isEmailVerified: boolean;
+  isContactVerified: boolean;
+  createdDate: string;
+  updatedByUserId: any;
+  updatedDate: any;
+}
+
+export interface LoginData {
+  contact: string;
+  pin: string;
+}
+
+export interface SignupData {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
