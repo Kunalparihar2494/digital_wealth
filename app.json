@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "digital_wealth",
+    "name": "Digital Wealth",
     "slug": "digital_wealth",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,18 +12,16 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.kunal.digitalwealth",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
       "expo-router",
@@ -43,6 +41,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1f8beac4-3ec9-4497-87f0-ac750d17f45d"
+      }
     }
   }
 }

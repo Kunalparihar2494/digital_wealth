@@ -1,7 +1,7 @@
 // src/components/BottomTabs.tsx
 import React from "react";
 import { Tabs } from "expo-router";
-import { Home, MessageCircle, LineChart } from "lucide-react-native";
+import { Home, MessageCircle, LineChart, User } from "lucide-react-native";
 import SafeAreaWrapper from "./SafeAreaWrapper";
 
 export default function BottomTabs() {
@@ -35,6 +35,15 @@ export default function BottomTabs() {
                     }}
                 />
                 <Tabs.Screen
+                    name="shares"
+                    options={{
+                        title: "Shares",
+                        tabBarIcon: ({ color, focused }) => (
+                            <LineChart color={focused ? "#2563eb" : color} size={22} />
+                        ),
+                    }}
+                />
+                <Tabs.Screen
                     name="chat"
                     options={{
                         title: "Chat",
@@ -44,11 +53,11 @@ export default function BottomTabs() {
                     }}
                 />
                 <Tabs.Screen
-                    name="shares"
+                    name="more"
                     options={{
-                        title: "Shares",
+                        title: "More",
                         tabBarIcon: ({ color, focused }) => (
-                            <LineChart color={focused ? "#2563eb" : color} size={22} />
+                            <User color={focused ? "#2563eb" : color} size={22} />
                         ),
                     }}
                 />

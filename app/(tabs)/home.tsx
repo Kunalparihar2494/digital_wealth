@@ -7,7 +7,7 @@ import EmptyMessage from "@/src/components/EmptyMessage";
 
 export default function Home() {
     return (
-        <View>
+        <View className="flex-1">
             <Header />
             <ScrollView showsVerticalScrollIndicator={false} className="">
                 <View className="p-2">
