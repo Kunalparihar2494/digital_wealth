@@ -1,22 +1,21 @@
-import { useState } from "react";
+import StepIndicator from "@/src/components/StepIndicator";
+import { createAccount, sendOtp, verifyOtp } from "@/src/services/auth";
+import Checkbox from "expo-checkbox";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-    View,
-    Text,
-    TouchableOpacity,
     Alert,
     Image,
-    ScrollView,
-    TextInput,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { Phone } from "lucide-react-native";
-import { router } from "expo-router";
-import InputField from "../../src/components/InputField";
 import Button from "../../src/components/Button";
-import StepIndicator from "@/src/components/StepIndicator";
-
+import InputField from "../../src/components/InputField";
 export default function Signup() {
     const [step, setStep] = useState(1);
     const [otpSent, setOtpSent] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
     // Step 1
@@ -30,22 +29,45 @@ export default function Signup() {
     // Step 3
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
+    const [agree, setAgree] = useState(false);
+    const [timer, setTimer] = useState(0);
+    const [pinError, setPinError] = useState("");
+    const [confirmError, setConfirmError] = useState("");
 
-    const nextStep = () => {
+    const nextStep = async () => {
         if (step === 1) {
             if (!mobile || mobile.length !== 10) {
                 Alert.alert("Error", "Enter valid 10-digit contact");
                 return;
             }
-            if (!otp || otp.length < 4) {
+            if (!otp || otp.length < 6) {
                 Alert.alert("Error", "Enter valid OTP");
                 return;
             }
-            setStep(2);
+            try {
+                setLoading(true);
+
+                const result = await verifyOtp(mobile, otp);
+
+                if (result?.message) {
+                    Alert.alert("Verified", "OTP verified successfully!");
+                    setStep(2);
+                } else {
+                    Alert.alert("Error", result?.message || "Invalid OTP");
+                    return;
+                }
+
+            } catch (error) {
+                console.log("verifyOtp error:", error);
+                Alert.alert("Error", "OTP verification failed");
+                return;
+            } finally {
+                setLoading(false);
+            }
         }
 
         if (step === 2) {
-            if (!pass1 || pass1.length < 4) {
+            if (!pass1 || pass1.length < 6) {
                 Alert.alert("Error", "Password too short");
                 return;
             }
@@ -62,19 +84,115 @@ export default function Signup() {
                 return;
             }
 
-            Alert.alert("Success", "Account created successfully!");
-            router.replace("/(auth)/login");
+            try {
+                setLoading(true);
+
+                const payload = {
+                    FullName: fullName,
+                    Contact: mobile,
+                    Password: pass1,
+                    ConfirmPassword: pass2,
+                    Email: email,
+                    Role: 'Retail'
+                };
+
+                const response = await createAccount(payload);
+
+                if (response?.message?.includes("success")) {
+                    Alert.alert("Success", "Account created successfully!", [
+                        { text: "OK", onPress: () => router.replace("/(auth)/login") }
+                    ]);
+                } else {
+                    Alert.alert("Error", response?.message || "Account creation failed.");
+                }
+
+            } catch (err: any) {
+                console.log("CreateAccount error:", err?.response?.data);
+                Alert.alert(
+                    "Error",
+                    err?.response?.data?.message || "Something went wrong. Try again."
+                );
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
-    const sendOtp = () => {
+    const handleSendOtp = async () => {
         if (!mobile || mobile.length !== 10) {
             Alert.alert("Error", "Enter valid mobile number");
             return;
         }
 
-        setOtpSent(true);
-        Alert.alert("OTP Sent!", "Please check your phone");
+        try {
+            const data = await sendOtp(mobile);
+            if (data) {
+                setOtpSent(true);
+                setTimer(120);
+                Alert.alert("OTP Sent!", "Please check your phone");
+            } else {
+                Alert.alert(data.message);
+            }
+
+        } catch (error: any) {
+            console.log("OTP API error:", error?.response?.data);
+
+            // backend is sending success message inside 500 error
+            const msg =
+                error?.response?.data?.message ||
+                error?.message ||
+                "OTP sending failed.";
+
+            Alert.alert("Info", msg);
+
+            // If backend still returned useful message, enable OTP timer
+            if (error?.response?.data?.message?.includes("Successfully")) {
+                setOtpSent(true);
+                setTimer(120);
+            }
+        }
+
+    };
+
+    useEffect(() => {
+        let interval: any = null;
+
+        if (otpSent && timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        }
+
+        if (timer === 0) {
+            setOtpSent(false);  // enable button again
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+    }, [otpSent, timer]);
+
+    const handlePinChange = (text: string) => {
+        setPass1(text);
+
+        if (!/^\d*$/.test(text)) {
+            setPinError("PIN must contain numbers only");
+        }
+        else if (text.length !== 6) {
+            setPinError("PIN must be exactly 6 digits");
+        }
+        else {
+            setPinError("");
+        }
+    };
+
+    const handleConfirmPinChange = (text: string) => {
+        setPass2(text);
+
+        if (text !== pass1) {
+            setConfirmError("PINs do not match");
+        } else {
+            setConfirmError("");
+        }
     };
 
 
@@ -104,8 +222,8 @@ export default function Signup() {
                             onChangeText={setMobile}
                             showOtpButton={true}
                             otpSent={otpSent}
-                            onSendOtp={sendOtp}
-
+                            onSendOtp={handleSendOtp}
+                            timer={timer}
                         />
                         <InputField
                             placeholder="Enter OTP"
@@ -114,7 +232,9 @@ export default function Signup() {
                             value={otp}
                             onChangeText={setOtp}
                         />
-                        <Button title="Verify OTP" onPress={nextStep} />
+                        <Button title={loading ? "Verifying..." : "Verify OTP"}
+                            onPress={nextStep}
+                            disabled={loading || otp.length !== 6} />
                     </>
                 )}
 
@@ -122,19 +242,22 @@ export default function Signup() {
                     <>
                         <InputField
                             icon={<Text>🔐</Text>}
-                            placeholder="Enter Password"
+                            placeholder="Enter 6-digit PIN"
                             secureTextEntry
+                            numeric
                             value={pass1}
-                            onChangeText={setPass1}
+                            onChangeText={handlePinChange}
                         />
                         <InputField
                             icon={<Text>🔐</Text>}
-                            placeholder="Confirm Password"
+                            placeholder="Confirm 6-digit PIN"
                             secureTextEntry
+                            numeric
                             value={pass2}
-                            onChangeText={setPass2}
+                            onChangeText={handleConfirmPinChange}
                         />
-                        <Button title="Next" onPress={nextStep} />
+                        {confirmError ? <Text className="text-red-500 text-xs">{confirmError}</Text> : null}
+                        <Button title="Next" onPress={nextStep} disabled={pass2.length !== 6} />
                     </>
                 )}
 
@@ -157,6 +280,20 @@ export default function Signup() {
                 )}
                 <View>
                 </View>
+                {
+                    step === 3 &&
+                    <View className="flex-row items-center mt-3 w-80">
+                        <Checkbox value={agree} onValueChange={setAgree} />
+                        <Text className="ml-3 text-gray-600 text-sm">
+                            I agree to the
+                            <Text onPress={() => router.push("/privacy")}> Privacy Policy</Text>,
+                            <Text onPress={() => router.push("/terms")}> Terms & Conditions </Text>
+                            and <Text onPress={() => router.push("/distributor")}> Distributor Agreement</Text>.
+                        </Text>
+                    </View>
+                }
+
+
                 <View className="flex-row justify-center mt-6">
                     <Text className="text-gray-700">Already have an account? </Text>
                     <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>

@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, ActivityIndicator } from "react-native";
-import { router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { loginUser } from "@/src/services/auth";
 import { IUser } from "@/src/model/auth.interface";
+import { loginUser } from "@/src/services/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useState } from "react";
+import { ActivityIndicator, Alert, Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
     const [contact, setContact] = useState("");
@@ -77,6 +77,7 @@ export default function Login() {
                         keyboardType="phone-pad"
                         className="flex-1 text-gray-700"
                         placeholderTextColor="#999"
+                        maxLength={10}
                     />
                 </View>
 
@@ -91,6 +92,7 @@ export default function Login() {
                         keyboardType="numeric"
                         className="flex-1 text-gray-700"
                         placeholderTextColor="#999"
+                        maxLength={6}
                     />
                     <Text onPress={handleEye} className="text-gray-400 ml-2">👁️</Text>
                 </View>
@@ -112,7 +114,10 @@ export default function Login() {
                 {/* Create Account */}
                 <View className="flex-row justify-center mt-4">
                     <Text className="text-gray-600">Don’t have an account? </Text>
-                    <TouchableOpacity onPress={() => router.push("/signup")}>
+                    <TouchableOpacity
+                        // onPress={() => Linking.openURL("https://digitalwealth.in/Auth/Home")}
+                        onPress={() => router.replace("/(auth)/signup")}
+                    >
                         <Text className="text-primary font-medium">Create One</Text>
                     </TouchableOpacity>
                 </View>

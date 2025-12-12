@@ -1,18 +1,31 @@
 import Header from "@/src/components/Header";
-import SafeAreaWrapper from "@/src/components/SafeAreaWrapper";
+import SearchBar from "@/src/components/SearchBar";
 import ShareCard from "@/src/components/ShareCard";
 import { IShare, IShareDetail } from "@/src/model/shares.interface";
 import { getShares } from "@/src/services/shares";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
 
 export default function Shares() {
     const [loading, setLoading] = useState(false);
     const [shares, setShares] = useState<IShareDetail[]>([]);
+    // const [shares, setShares] = useState([]);
+    const [search, setSearch] = useState("");
+
 
     useEffect(() => {
         getShare();
     }, [])
+
+    const filteredShares = shares.filter((item) => {
+        const text = search.toLowerCase();
+        return (
+            item.company.toLowerCase().includes(text) ||
+            item.brandName.toLowerCase().includes(text)
+        );
+    });
+
 
     const getShare = async () => {
         try {
@@ -25,7 +38,16 @@ export default function Shares() {
             }
         } catch (err: any) {
             console.log("getShare error:", err.message ?? err);
-            Alert.alert("Error", "Something went wrong. Please try again later.");
+            Alert.alert(
+                "Error",
+                "Something went wrong. Please try again later.",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => router.replace("/(auth)/login"), // redirect to login
+                    },
+                ]
+            );
         } finally {
             setLoading(false);
         }
@@ -46,10 +68,19 @@ export default function Shares() {
             <Text className="text-2xl mt-10 font-bold text-center mb-6 text-gray-900">
                 Unlisted Shares
             </Text>
+
+            <SearchBar value={search} onChangeText={setSearch} />
+
             <ScrollView showsVerticalScrollIndicator={false}>
-                {shares && shares.map((s: any) => (
-                    <ShareCard key={s.id} {...s} />
-                ))}
+                {filteredShares.length > 0 ? (
+                    filteredShares.map((s: any) => (
+                        <ShareCard key={s.id} {...s} />
+                    ))
+                ) : (
+                    <Text className="text-center text-gray-500 mt-10">
+                        No shares found.
+                    </Text>
+                )}
             </ScrollView>
         </View>
     );

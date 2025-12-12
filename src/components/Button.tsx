@@ -1,10 +1,11 @@
-import { TouchableOpacity, Text } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 
 interface ButtonProps {
     title: string;
     onPress: () => void;
     loading?: boolean;
     color?: string;
+    disabled?: boolean;
 }
 
 export default function Button({
@@ -12,12 +13,14 @@ export default function Button({
     onPress,
     loading = false,
     color = "bg-green-600",
+    disabled = false,
 }: ButtonProps) {
     return (
         <TouchableOpacity
             onPress={onPress}
-            disabled={loading}
-            className={`${color} py-3 rounded-full mt-4`}
+            disabled={disabled || loading}
+            className={`${color} py-3 rounded-full mt-4 ${disabled || loading ? "opacity-50" : ""
+                }`}
         >
             <Text className="text-white text-center text-lg font-semibold">
                 {loading ? "Please wait..." : title}

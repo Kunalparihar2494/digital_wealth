@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ShoppingCart } from "lucide-react-native";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface ShareCardProps {
     company: string;
@@ -36,7 +36,7 @@ export default function ShareCard({
                         />
                     </View>
                     <View className="justify-end items-center" style={{ marginLeft: "auto", width: 200 }}>
-                        <Text className="text-base font-semibold flex-1 text-gray-900">
+                        <Text className="mr-auto font-semibold text-gray-900">
                             {company}
                         </Text>
                     </View>
@@ -64,9 +64,10 @@ export default function ShareCard({
                     <LinearGradient
                         colors={["#667eea", "#764ba2"]}
                         className="w-full py-3 flex-row items-center justify-center gap-1.5"
+                        style={{ borderRadius: 8 }}
                     >
-                        <ShoppingCart color="white" size={16} mx-4 />
-                        <Text className="text-white font-semibold text-sm">Buy Now</Text>
+                        <ShoppingCart color="white" size={18} mx-4 />
+                        <Text className="text-white font-semibold text-md">Buy Now</Text>
                     </LinearGradient>
                 </TouchableOpacity>
 

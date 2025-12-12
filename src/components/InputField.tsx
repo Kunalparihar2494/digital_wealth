@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, Text } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 interface InputProps {
     placeholder: string;
@@ -12,6 +12,7 @@ interface InputProps {
     showOtpButton?: boolean;          // enable "Send OTP"
     otpSent?: boolean;                // state from parent
     onSendOtp?: () => void;
+    timer?: number;
 }
 
 export default function InputField({
@@ -24,6 +25,7 @@ export default function InputField({
     showOtpButton = false,
     otpSent = false,
     onSendOtp,
+    timer
 
 }: InputProps) {
     const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +61,11 @@ export default function InputField({
                         }`}
                 >
                     <Text className="text-white text-sm font-semibold">
-                        {otpSent ? "Sent ✓" : "Send OTP"}
+                        {otpSent
+                            ? timer && timer > 0
+                                ? `Resend OTP in ${timer}s`
+                                : "Send OTP"
+                            : "Send OTP"}
                     </Text>
                 </TouchableOpacity>
             )}

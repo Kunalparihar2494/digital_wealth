@@ -1,14 +1,16 @@
+
 import ComingSoon from "@/src/components/Comingsoon";
 import Header from "@/src/components/Header";
-import SafeAreaWrapper from "@/src/components/SafeAreaWrapper";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 
 export default function More() {
     return (
-        <View>
+        <View className="flex-1 bg-gray-100">
             <Header />
-            <Text className="text-lg font-semibold text-gray-800">Coming Soon</Text>
-            <ComingSoon />
+
+            <View className="flex-1">
+                <ComingSoon />
+            </View>
         </View>
 
     );

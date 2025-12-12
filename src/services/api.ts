@@ -1,8 +1,8 @@
 // src/services/api.ts
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const API_BASE_URL = "https://digitalwealth.in/AppAccess"; // 🔹 Replace with your backend URL
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL; // 🔹 Replace with your backend URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
