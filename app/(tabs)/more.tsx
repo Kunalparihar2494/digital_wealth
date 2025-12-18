@@ -1,6 +1,7 @@
 
-import ComingSoon from "@/src/components/Comingsoon";
-import Header from "@/src/components/Header";
+
+import ComingSoon from "@/src/components/shared/Comingsoon";
+import Header from "@/src/components/shared/Header";
 import { View } from "react-native";
 
 export default function More() {

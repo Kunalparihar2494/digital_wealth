@@ -6,7 +6,27 @@ export interface IDashboard {
   pendingOrders?: number;
   confirmedOrders?: number;
   cancelledOrders?: number;
-  recentOrders?: any[];
-  orders?: any[];
+  recentOrders?: IRecentOrder[];
+  orders?: IOrder[];
   hotDeal?: any;
+}
+
+export interface IRecentOrder {
+  id: number;
+  shareId: number;
+  shareName: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  quantity: number;
+}
+
+export interface IOrder {
+  id: number;
+  shareId: number;
+  shareName: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  quantity: number;
 }

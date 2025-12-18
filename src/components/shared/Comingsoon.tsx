@@ -28,7 +28,10 @@ export default function ComingSoon() {
             {/* Button */}
             <TouchableOpacity
                 className="bg-primary px-6 py-3 rounded-full mt-8"
-                onPress={() => router.back()}
+                onPress={() => {
+                    if (router.canGoBack()) router.back();
+                    else router.replace("/(auth)/login");
+                }}
             >
                 <Text className="text-white text-lg font-semibold">Go Back</Text>
             </TouchableOpacity>

@@ -1,11 +1,11 @@
-import Header from "@/src/components/Header";
-import SearchBar from "@/src/components/SearchBar";
-import ShareCard from "@/src/components/ShareCard";
+
+import ComingSoon from "@/src/components/shared/Comingsoon";
+import Header from "@/src/components/shared/Header";
 import { IShare, IShareDetail } from "@/src/model/shares.interface";
 import { getShares } from "@/src/services/shares";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 
 export default function Shares() {
     const [loading, setLoading] = useState(false);
@@ -63,9 +63,9 @@ export default function Shares() {
     }
 
     return (
-        <View className="">
+        <View className="flex-1">
             <Header />
-            <Text className="text-2xl mt-10 font-bold text-center mb-6 text-gray-900">
+            {/* <Text className="text-2xl mt-10 font-bold text-center mb-6 text-gray-600">
                 Unlisted Shares
             </Text>
 
@@ -81,7 +81,8 @@ export default function Shares() {
                         No shares found.
                     </Text>
                 )}
-            </ScrollView>
+            </ScrollView> */}
+            <ComingSoon />
         </View>
     );
 }

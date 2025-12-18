@@ -19,7 +19,7 @@ export default function Button({
         <TouchableOpacity
             onPress={onPress}
             disabled={disabled || loading}
-            className={`${color} py-3 rounded-full mt-4 ${disabled || loading ? "opacity-50" : ""
+            className={`${color} py-3 rounded-xl mt-4 ${disabled || loading ? "opacity-50" : ""
                 }`}
         >
             <Text className="text-white text-center text-lg font-semibold">

@@ -1,0 +1,73 @@
+import React from "react";
+import { Text, View } from "react-native";
+
+type HoldingItem = {
+    name: string;
+    qty: number;
+    price: string;
+    pnl: string;
+    percent: string;
+    isLoss?: boolean;
+};
+
+type Props = {
+    data: HoldingItem[];
+    visibleCount?: number;
+};
+
+export default function HoldingsList({
+    data,
+    visibleCount = 2,
+}: Props) {
+    // 🔹 Empty state
+    if (!data || data.length === 0) {
+        return (
+            <View className="bg-white mx-4 p-6 rounded-xl items-center">
+                <Text className="text-gray-500">
+                    No holdings available
+                </Text>
+            </View>
+        );
+    }
+
+    return (
+        <View className="mx-4">
+            {data.slice(0, visibleCount).map((item, index) => {
+                const isLoss = item.isLoss;
+
+                return (
+                    <View
+                        key={index}
+                        className="bg-white rounded-xl p-4 mb-3 flex-row justify-between items-center"
+                    >
+                        {/* LEFT */}
+                        <View>
+                            <Text className="font-semibold text-gray-900">
+                                {item.name}
+                            </Text>
+                            <Text className="text-xs text-gray-500">
+                                Qty: {item.qty} · Price: {item.price}
+                            </Text>
+                        </View>
+
+                        {/* RIGHT */}
+                        <View className="items-end">
+                            <Text
+                                className={`font-semibold ${isLoss ? "text-red-500" : "text-emerald-600"
+                                    }`}
+                            >
+                                {item.pnl}
+                            </Text>
+                            <Text
+                                className={`text-xs ${isLoss ? "text-red-500" : "text-emerald-600"
+                                    }`}
+                            >
+                                {item.percent}
+                            </Text>
+                        </View>
+                    </View>
+                );
+            })}
+        </View>
+    );
+}

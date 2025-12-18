@@ -1,6 +1,17 @@
 // app/(tabs)/_layout.tsx
-import BottomTabs from "../../src/components/BottomTabs";
+
+import BottomTabs from "@/src/components/shared/BottomTabs";
+import { Stack } from "expo-router";
+import { View } from "react-native";
 
 export default function TabsLayout() {
-    return <BottomTabs />;
+    return (
+        <View style={{ flex: 1 }}>
+            {/* Screens inside (tabs) */}
+            <Stack screenOptions={{ headerShown: false }} />
+
+            {/* Bottom Tab Bar */}
+            <BottomTabs />
+        </View>
+    );
 }

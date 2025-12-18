@@ -36,7 +36,7 @@ export default function ShareCard({
                         />
                     </View>
                     <View className="justify-end items-center" style={{ marginLeft: "auto", width: 200 }}>
-                        <Text className="mr-auto font-semibold text-gray-900">
+                        <Text className="mr-auto font-semibold text-gray-600">
                             {company}
                         </Text>
                     </View>
@@ -56,7 +56,7 @@ export default function ShareCard({
                 </View>
 
                 {/* Button */}
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     onPress={onPress}
                     activeOpacity={0.8}
                     className="w-full mt-auto rounded-xl"
@@ -68,6 +68,24 @@ export default function ShareCard({
                     >
                         <ShoppingCart color="white" size={18} mx-4 />
                         <Text className="text-white font-semibold text-md">Buy Now</Text>
+                    </LinearGradient>
+                </TouchableOpacity> */}
+                <TouchableOpacity
+                    onPress={onPress}
+                    activeOpacity={0.85}
+                    className="w-full mt-auto rounded-sm"
+                >
+                    <LinearGradient
+                        colors={["#4F46E5", "#6366F1"]} // indigo-600 → indigo-500
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        className="w-full py-3 flex-row items-center justify-center gap-2"
+                        style={{ borderRadius: 5 }}
+                    >
+                        <ShoppingCart color="white" size={18} />
+                        <Text className="text-white font-semibold text-md">
+                            Buy Now
+                        </Text>
                     </LinearGradient>
                 </TouchableOpacity>
 
