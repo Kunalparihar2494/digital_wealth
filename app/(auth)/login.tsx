@@ -1,6 +1,9 @@
-import AuthLayout from "@/src/components/Auth/AuthContainer";
+import AuthBottomText from "@/src/components/Auth/AuthBottomText";
+import AuthBrandHeader from "@/src/components/Auth/AuthBrandHeader";
+import AuthCard from "@/src/components/Auth/AuthCard";
+import AuthFooterActions from "@/src/components/Auth/AuthFooter";
 import AuthInput from "@/src/components/Auth/AuthInput";
-import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
+import AuthScreenLayout from "@/src/components/Auth/AuthScreenLayout";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import { IUser } from "@/src/model/auth.interface";
 import { loginUser } from "@/src/services/auth";
@@ -8,9 +11,9 @@ import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
 import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
-import { Fingerprint, Lock, User } from "lucide-react-native";
+import { Lock, Phone } from "lucide-react-native";
 import { useState } from "react";
-import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
 
 export default function Login() {
     const [contact, setContact] = useState("");
@@ -55,81 +58,126 @@ export default function Login() {
     }
 
     return (
-        <AuthLayout
-            subtitle="Secure access to your investments"
-        >
-            <AuthInput
-                placeholder="Contact or Phone Number"
-                value={contact}
-                keyboardType="phone-pad"
-                onChangeText={setContact}
-                icon={<User size={18} color="#6B7280" />}
-            />
+        <AuthScreenLayout>
+            <AuthCard>
+                <AuthBrandHeader />
 
-            <AuthInput
-                placeholder="Enter Pin"
-                value={pin}
-                keyboardType="numeric"
-                onChangeText={setPin}
-                secureTextEntry={true}
-                maxLength={6}
-                icon={<Lock size={18} color="#6B7280" />}
-            />
+                <AuthInput
+                    placeholder="Mobile No."
+                    keyboardType="phone-pad"
+                    icon={<Phone size={18} color="#6B7280" />}
+                    value={contact}
+                    onChangeText={setContact}
+                    maxLength={10}
+                />
 
-            <View className="flex-row justify-between items-center mb-4">
-                <View className="flex-row items-center">
-                    <Checkbox
-                        value={remember}
-                        onValueChange={setRemember}
-                        color={remember ? "#318029" : undefined}
-                    />
-                    <Text className="ml-2 text-sm text-gray-600">Remember me</Text>
-                </View>
-                <TouchableOpacity
-                    onPress={() => router.replace("/(auth)/forgotPassword")}>
-                    <Text className="text-sm text-emerald-600">Forgot Password?</Text>
-                </TouchableOpacity>
-            </View>
+                <AuthInput
+                    placeholder="Password"
+                    secureTextEntry
+                    keyboardType="numeric"
+                    icon={<Lock size={18} color="#6B7280" />}
+                    value={pin}
+                    onChangeText={setPin}
+                    maxLength={6}
+                />
 
-            <PrimaryButton title="Sign In" onPress={handleLogin} />
 
-            <View className="my-4">
-                <View className="flex-row items-center mb-2">
-                    <View className="flex-1 h-px bg-gray-300" />
-                    <Text className="mx-3 text-gray-500 text-sm">Or continue with</Text>
-                    <View className="flex-1 h-px bg-gray-300" />
+                <View className="flex-row justify-between items-center mb-4">
+                    <View className="flex-row items-center">
+                        <Checkbox
+                            value={remember}
+                            onValueChange={setRemember}
+                            color={remember ? "#059669" : undefined}
+                        />
+                        <Text className="ml-2 text-sm text-gray-600">Remember me</Text>
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => router.replace("/(auth)/forgotPassword")}>
+                        <Text className="text-sm text-emerald-600">Forgot Password?</Text>
+                    </TouchableOpacity>
                 </View>
 
-                <View className="flex-row justify-center gap-4 mt-6">
-                    {/* GOOGLE */}
-                    <SocialAuthButton
-                        label=""
-                        icon={
-                            <Image
-                                source={require('@/assets/images/google.png')}
-                                style={{ width: 18, height: 18 }}
-                                resizeMode="contain"
-                            />
-                        }
-                        onPress={() => console.log("Google Login")}
-                    />
+                <PrimaryButton title="Sign In" onPress={handleLogin} />
 
-                    {/* BIOMETRIC */}
-                    <SocialAuthButton
-                        label="Biometric"
-                        icon={<Fingerprint size={18} color="#374151" />}
-                        onPress={() => console.log("Biometric Login")}
-                    />
-                </View>
-            </View>
+                <AuthFooterActions />
+                <AuthBottomText />
+            </AuthCard>
+        </AuthScreenLayout>
+        // <AuthLayout
+        //     subtitle="Secure access to your investments"
+        // >
+        //     <AuthInput
+        //         placeholder="Contact or Phone Number"
+        //         value={contact}
+        //         keyboardType="phone-pad"
+        //         onChangeText={setContact}
+        //         icon={<User size={18} color="#6B7280" />}
+        //     />
 
-            <View className="flex-row justify-center mt-5">
-                <Text className="text-gray-500 text-sm mt-1 text-center">Don’t have an account? </Text>
-                <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-                    <Text className="text-emerald-600 text-sm mt-1 font-semibold">Sign Up</Text>
-                </TouchableOpacity>
-            </View>
-        </AuthLayout>
+        //     <AuthInput
+        //         placeholder="Enter Pin"
+        //         value={pin}
+        //         keyboardType="numeric"
+        //         onChangeText={setPin}
+        //         secureTextEntry={true}
+        //         maxLength={6}
+        //         icon={<Lock size={18} color="#6B7280" />}
+        //     />
+
+        //     <View className="flex-row justify-between items-center mb-4">
+        //         <View className="flex-row items-center">
+        //             <Checkbox
+        //                 value={remember}
+        //                 onValueChange={setRemember}
+        //                 color={remember ? "#318029" : undefined}
+        //             />
+        //             <Text className="ml-2 text-sm text-gray-600">Remember me</Text>
+        //         </View>
+        //         <TouchableOpacity
+        //             onPress={() => router.replace("/(auth)/forgotPassword")}>
+        //             <Text className="text-sm text-emerald-600">Forgot Password?</Text>
+        //         </TouchableOpacity>
+        //     </View>
+
+        //     <PrimaryButton title="Sign In" onPress={handleLogin} />
+
+        //     <View className="my-4">
+        //         <View className="flex-row items-center mb-2">
+        //             <View className="flex-1 h-px bg-gray-300" />
+        //             <Text className="mx-3 text-gray-500 text-sm">Or continue with</Text>
+        //             <View className="flex-1 h-px bg-gray-300" />
+        //         </View>
+
+        //         <View className="flex-row justify-center gap-4 mt-6">
+        //             {/* GOOGLE */}
+        //             <SocialAuthButton
+        //                 label=""
+        //                 icon={
+        //                     <Image
+        //                         source={require('@/assets/images/google.png')}
+        //                         style={{ width: 18, height: 18 }}
+        //                         resizeMode="contain"
+        //                     />
+        //                 }
+        //                 onPress={() => console.log("Google Login")}
+        //             />
+
+        //             {/* BIOMETRIC */}
+        //             <SocialAuthButton
+        //                 label="Biometric"
+        //                 icon={<Fingerprint size={18} color="#374151" />}
+        //                 onPress={() => console.log("Biometric Login")}
+        //             />
+        //         </View>
+        //     </View>
+
+        //     <View className="flex-row justify-center mt-5">
+        //         <Text className="text-gray-500 text-sm mt-1 text-center">Don’t have an account? </Text>
+        //         <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+        //             <Text className="text-emerald-600 text-sm mt-1 font-semibold">Sign Up</Text>
+        //         </TouchableOpacity>
+        //     </View>
+        // </AuthLayout>
         // <AuthContainer>
         //     {/* // <View className="flex-1 justify-center items-center bg-primary px-5"> */}
         //     {/* Logo */}

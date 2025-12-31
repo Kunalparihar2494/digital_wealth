@@ -15,7 +15,7 @@ export default function ProfitLossCard({
     gains,
 }: Props) {
     return (
-        <View className="bg-white rounded-2xl p-4 shadow mb-5">
+        <View className="bg-white rounded-2xl p-5 shadow mb-5">
             <View className="flex-row justify-between mb-2">
                 <View>
                     <Text className="text-gray-500 text-xs">Total P&L</Text>

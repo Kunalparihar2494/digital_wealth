@@ -1,5 +1,8 @@
-import AuthContainer from "@/src/components/Auth/AuthContainer";
+import AuthBrandHeader from "@/src/components/Auth/AuthBrandHeader";
+import AuthCard from "@/src/components/Auth/AuthCard";
 import AuthInput from "@/src/components/Auth/AuthInput";
+import AuthScreenLayout from "@/src/components/Auth/AuthScreenLayout";
+import Button from "@/src/components/shared/Button";
 import StepIndicator from "@/src/components/StepIndicator";
 import { createAccount, sendOtp, verifyOtp } from "@/src/services/auth";
 import Checkbox from "expo-checkbox";
@@ -12,7 +15,6 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import Button from "../../src/components/shared/Button";
 export default function Signup() {
     const [step, setStep] = useState(1);
     const [otpSent, setOtpSent] = useState(false);
@@ -198,143 +200,281 @@ export default function Signup() {
 
 
     return (
-        <AuthContainer subtitle="Secure access to your investments">
-            {/* Logo & Branding */}
+        <AuthScreenLayout>
+            <AuthCard>
+                <AuthBrandHeader />
 
-            {/* Card */}
-            <View className="bg-white w-full max-w-sm rounded-3xl px-6 py-8 shadow-lg">
-                <Text className="text-2xl font-semibold text-center mb-6 text-gray-600">
-                    Create Account
-                </Text>
+                <View className="bg-white w-full max-w-sm rounded-3xl px-6 py-8 shadow-lg">
+                    <Text className="text-2xl font-semibold text-center mb-6 text-gray-600">
+                        Create Account
+                    </Text>
 
-                <StepIndicator step={step} />
+                    <StepIndicator step={step} />
 
-                {/* STEP 1 – Mobile + OTP */}
-                {step === 1 && (
-                    <>
-                        <AuthInput
-                            placeholder="Contact"
-                            value={mobile}
-                            onChangeText={setMobile}
-                            keyboardType="phone-pad"
-                            icon={<Phone size={18} color="#6B7280" />}
-                            showOtpButton
-                            otpSent={otpSent}
-                            onSendOtp={handleSendOtp}
-                            timer={timer}
-                        />
+                    {/* STEP 1 – Mobile + OTP */}
+                    {step === 1 && (
+                        <>
+                            <AuthInput
+                                placeholder="Contact"
+                                value={mobile}
+                                onChangeText={setMobile}
+                                keyboardType="phone-pad"
+                                icon={<Phone size={18} color="#6B7280" />}
+                                showOtpButton
+                                otpSent={otpSent}
+                                onSendOtp={handleSendOtp}
+                                timer={timer}
+                            />
 
-                        <AuthInput
-                            placeholder="Enter OTP"
-                            value={otp}
-                            onChangeText={setOtp}
-                            keyboardType="numeric"
-                            icon={<Lock size={18} color="#6B7280" />}
-                        />
+                            <AuthInput
+                                placeholder="Enter OTP"
+                                value={otp}
+                                onChangeText={setOtp}
+                                keyboardType="numeric"
+                                icon={<Lock size={18} color="#6B7280" />}
+                            />
 
-                        <Button
-                            title={loading ? "Verifying..." : "Verify OTP"}
-                            onPress={nextStep}
-                            disabled={loading || otp.length !== 6}
-                        />
-                    </>
-                )}
+                            <Button
+                                title={loading ? "Verifying..." : "Verify OTP"}
+                                onPress={nextStep}
+                                disabled={loading || otp.length !== 6}
+                            />
+                        </>
+                    )}
 
-                {/* STEP 2 – PIN */}
-                {step === 2 && (
-                    <>
-                        <AuthInput
-                            placeholder="Enter 6-digit PIN"
-                            value={pass1}
-                            onChangeText={handlePinChange}
-                            keyboardType="numeric"
-                            secureTextEntry
-                            icon={<Lock size={18} color="#6B7280" />}
-                        />
+                    {/* STEP 2 – PIN */}
+                    {step === 2 && (
+                        <>
+                            <AuthInput
+                                placeholder="Enter 6-digit PIN"
+                                value={pass1}
+                                onChangeText={handlePinChange}
+                                keyboardType="numeric"
+                                secureTextEntry
+                                icon={<Lock size={18} color="#6B7280" />}
+                            />
 
-                        <AuthInput
-                            placeholder="Confirm 6-digit PIN"
-                            value={pass2}
-                            onChangeText={handleConfirmPinChange}
-                            keyboardType="numeric"
-                            secureTextEntry
-                            icon={<Lock size={18} color="#6B7280" />}
-                        />
+                            <AuthInput
+                                placeholder="Confirm 6-digit PIN"
+                                value={pass2}
+                                onChangeText={handleConfirmPinChange}
+                                keyboardType="numeric"
+                                secureTextEntry
+                                icon={<Lock size={18} color="#6B7280" />}
+                            />
 
-                        {confirmError ? (
-                            <Text className="text-red-500 text-xs mb-2">
-                                {confirmError}
+                            {confirmError ? (
+                                <Text className="text-red-500 text-xs mb-2">
+                                    {confirmError}
+                                </Text>
+                            ) : null}
+
+                            <Button
+                                title="Next"
+                                onPress={nextStep}
+                                disabled={pass2.length !== 6}
+                            />
+                        </>
+                    )}
+
+                    {/* STEP 3 – Profile */}
+                    {step === 3 && (
+                        <>
+                            <AuthInput
+                                placeholder="Full Name as per Aadhar"
+                                value={fullName}
+                                onChangeText={setFullName}
+                                icon={<User size={18} color="#6B7280" />}
+                            />
+
+                            <AuthInput
+                                placeholder="Email (Optional)"
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                icon={<Mail size={18} color="#6B7280" />}
+                            />
+
+                            <Button title="Create Account" onPress={nextStep} />
+
+                            {/* Agreement */}
+                            <View className="flex-row items-start mt-4">
+                                <Checkbox value={agree} onValueChange={setAgree} />
+                                <Text className="ml-3 text-gray-600 text-sm flex-1">
+                                    I agree to the
+                                    <Text
+                                        className="text-emerald-600"
+                                        onPress={() => router.push("/privacy")}
+                                    >
+                                        {" "}Privacy Policy
+                                    </Text>,
+                                    <Text
+                                        className="text-emerald-600"
+                                        onPress={() => router.push("/terms")}
+                                    >
+                                        {" "}Terms & Conditions
+                                    </Text>{" "}
+                                    and
+                                    <Text
+                                        className="text-emerald-600"
+                                        onPress={() => router.push("/distributor")}
+                                    >
+                                        {" "}Distributor Agreement
+                                    </Text>.
+                                </Text>
+                            </View>
+                        </>
+                    )}
+
+                    {/* Footer */}
+                    <View className="flex-row justify-center mt-6">
+                        <Text className="text-gray-600 text-sm">Already have an account? </Text>
+                        <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+                            <Text className="text-emerald-600 text-sm font-semibold">
+                                Sign in
                             </Text>
-                        ) : null}
-
-                        <Button
-                            title="Next"
-                            onPress={nextStep}
-                            disabled={pass2.length !== 6}
-                        />
-                    </>
-                )}
-
-                {/* STEP 3 – Profile */}
-                {step === 3 && (
-                    <>
-                        <AuthInput
-                            placeholder="Full Name as per Aadhar"
-                            value={fullName}
-                            onChangeText={setFullName}
-                            icon={<User size={18} color="#6B7280" />}
-                        />
-
-                        <AuthInput
-                            placeholder="Email (Optional)"
-                            value={email}
-                            onChangeText={setEmail}
-                            keyboardType="email-address"
-                            icon={<Mail size={18} color="#6B7280" />}
-                        />
-
-                        <Button title="Create Account" onPress={nextStep} />
-
-                        {/* Agreement */}
-                        <View className="flex-row items-start mt-4">
-                            <Checkbox value={agree} onValueChange={setAgree} />
-                            <Text className="ml-3 text-gray-600 text-sm flex-1">
-                                I agree to the
-                                <Text
-                                    className="text-emerald-600"
-                                    onPress={() => router.push("/privacy")}
-                                >
-                                    {" "}Privacy Policy
-                                </Text>,
-                                <Text
-                                    className="text-emerald-600"
-                                    onPress={() => router.push("/terms")}
-                                >
-                                    {" "}Terms & Conditions
-                                </Text>{" "}
-                                and
-                                <Text
-                                    className="text-emerald-600"
-                                    onPress={() => router.push("/distributor")}
-                                >
-                                    {" "}Distributor Agreement
-                                </Text>.
-                            </Text>
-                        </View>
-                    </>
-                )}
-
-                {/* Footer */}
-                <View className="flex-row justify-center mt-6">
-                    <Text className="text-gray-600 text-sm">Already have an account? </Text>
-                    <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
-                        <Text className="text-emerald-600 text-sm font-semibold">
-                            Sign in
-                        </Text>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-        </AuthContainer>
+            </AuthCard>
+        </AuthScreenLayout>
+        // <AuthContainer subtitle="Secure access to your investments">
+        //     {/* Logo & Branding */}
+
+        //     {/* Card */}
+        //     <View className="bg-white w-full max-w-sm rounded-3xl px-6 py-8 shadow-lg">
+        //         <Text className="text-2xl font-semibold text-center mb-6 text-gray-600">
+        //             Create Account
+        //         </Text>
+
+        //         <StepIndicator step={step} />
+
+        //         {/* STEP 1 – Mobile + OTP */}
+        //         {step === 1 && (
+        //             <>
+        //                 <AuthInput
+        //                     placeholder="Contact"
+        //                     value={mobile}
+        //                     onChangeText={setMobile}
+        //                     keyboardType="phone-pad"
+        //                     icon={<Phone size={18} color="#6B7280" />}
+        //                     showOtpButton
+        //                     otpSent={otpSent}
+        //                     onSendOtp={handleSendOtp}
+        //                     timer={timer}
+        //                 />
+
+        //                 <AuthInput
+        //                     placeholder="Enter OTP"
+        //                     value={otp}
+        //                     onChangeText={setOtp}
+        //                     keyboardType="numeric"
+        //                     icon={<Lock size={18} color="#6B7280" />}
+        //                 />
+
+        //                 <Button
+        //                     title={loading ? "Verifying..." : "Verify OTP"}
+        //                     onPress={nextStep}
+        //                     disabled={loading || otp.length !== 6}
+        //                 />
+        //             </>
+        //         )}
+
+        //         {/* STEP 2 – PIN */}
+        //         {step === 2 && (
+        //             <>
+        //                 <AuthInput
+        //                     placeholder="Enter 6-digit PIN"
+        //                     value={pass1}
+        //                     onChangeText={handlePinChange}
+        //                     keyboardType="numeric"
+        //                     secureTextEntry
+        //                     icon={<Lock size={18} color="#6B7280" />}
+        //                 />
+
+        //                 <AuthInput
+        //                     placeholder="Confirm 6-digit PIN"
+        //                     value={pass2}
+        //                     onChangeText={handleConfirmPinChange}
+        //                     keyboardType="numeric"
+        //                     secureTextEntry
+        //                     icon={<Lock size={18} color="#6B7280" />}
+        //                 />
+
+        //                 {confirmError ? (
+        //                     <Text className="text-red-500 text-xs mb-2">
+        //                         {confirmError}
+        //                     </Text>
+        //                 ) : null}
+
+        //                 <Button
+        //                     title="Next"
+        //                     onPress={nextStep}
+        //                     disabled={pass2.length !== 6}
+        //                 />
+        //             </>
+        //         )}
+
+        //         {/* STEP 3 – Profile */}
+        //         {step === 3 && (
+        //             <>
+        //                 <AuthInput
+        //                     placeholder="Full Name as per Aadhar"
+        //                     value={fullName}
+        //                     onChangeText={setFullName}
+        //                     icon={<User size={18} color="#6B7280" />}
+        //                 />
+
+        //                 <AuthInput
+        //                     placeholder="Email (Optional)"
+        //                     value={email}
+        //                     onChangeText={setEmail}
+        //                     keyboardType="email-address"
+        //                     icon={<Mail size={18} color="#6B7280" />}
+        //                 />
+
+        //                 <Button title="Create Account" onPress={nextStep} />
+
+        //                 {/* Agreement */}
+        //                 <View className="flex-row items-start mt-4">
+        //                     <Checkbox value={agree} onValueChange={setAgree} />
+        //                     <Text className="ml-3 text-gray-600 text-sm flex-1">
+        //                         I agree to the
+        //                         <Text
+        //                             className="text-emerald-600"
+        //                             onPress={() => router.push("/privacy")}
+        //                         >
+        //                             {" "}Privacy Policy
+        //                         </Text>,
+        //                         <Text
+        //                             className="text-emerald-600"
+        //                             onPress={() => router.push("/terms")}
+        //                         >
+        //                             {" "}Terms & Conditions
+        //                         </Text>{" "}
+        //                         and
+        //                         <Text
+        //                             className="text-emerald-600"
+        //                             onPress={() => router.push("/distributor")}
+        //                         >
+        //                             {" "}Distributor Agreement
+        //                         </Text>.
+        //                     </Text>
+        //                 </View>
+        //             </>
+        //         )}
+
+        //         {/* Footer */}
+        //         <View className="flex-row justify-center mt-6">
+        //             <Text className="text-gray-600 text-sm">Already have an account? </Text>
+        //             <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+        //                 <Text className="text-emerald-600 text-sm font-semibold">
+        //                     Sign in
+        //                 </Text>
+        //             </TouchableOpacity>
+        //         </View>
+        //     </View>
+        // </AuthContainer>
         //     {/* <View className="flex-1 justify-center items-center bg-primary px-5"> */}
         //     {/* Logo */}
         //     <Image

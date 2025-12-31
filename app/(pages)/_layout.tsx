@@ -1,19 +1,13 @@
 // app/(tabs)/_layout.tsx
 
-import BottomTabs from "@/src/components/shared/BottomTabs";
-import TradeBottomSheet from "@/src/components/shared/TradeBottomSheet";
 import { Stack } from "expo-router";
 import { View } from "react-native";
 
-export default function TabsLayout() {
+export default function PagesLayout() {
     return (
         <View style={{ flex: 1 }}>
             {/* Screens inside (tabs) */}
             <Stack screenOptions={{ headerShown: false }} />
-
-            {/* Bottom Tab Bar */}
-            <BottomTabs />
-            <TradeBottomSheet />
         </View>
     );
 }

@@ -22,7 +22,7 @@ export default function HoldingsList({
     // 🔹 Empty state
     if (!data || data.length === 0) {
         return (
-            <View className="bg-white mx-4 p-6 rounded-xl items-center">
+            <View className="bg-gray-200 mx-4 p-6 rounded-xl items-center">
                 <Text className="text-gray-500">
                     No holdings available
                 </Text>
@@ -38,7 +38,7 @@ export default function HoldingsList({
                 return (
                     <View
                         key={index}
-                        className="bg-white rounded-xl p-4 mb-3 flex-row justify-between items-center"
+                        className="bg-gray-200 rounded-xl p-4 mb-3 flex-row justify-between items-center"
                     >
                         {/* LEFT */}
                         <View>

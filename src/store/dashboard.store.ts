@@ -6,6 +6,7 @@ type DashboardState = {
   data?: IDashboard;
   loading: boolean;
   fetchDashboard: () => Promise<void>;
+  reset: () => void;
 };
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -21,4 +22,5 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       set({ loading: false });
     }
   },
+  reset: () => set({ data: undefined, loading: false }),
 }));

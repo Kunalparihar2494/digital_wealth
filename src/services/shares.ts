@@ -1,16 +1,17 @@
-// src/services/shares.ts
+import { router } from "expo-router";
 import api from "./api";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL + `AppAccess`;
 
 export const getShares = async () => {
   try {
-    // NOTE: confirm the endpoint path and case with your backend (e.g. "/Orders" vs "/orders").
-    const res = await api.get(API_BASE_URL + `/Orders`); // Replace with your endpoint if needed
+    // ✅ Only endpoint path — baseURL is already set
+    const res = await api.get("/AppAccess/allshares");
     return res.data;
   } catch (error: any) {
-    // Log useful error details for debugging in native/Expo logs
-    console.error("getShares error:", error.message || error);
-    throw error;
+    console.error("getShares error:", error?.message || error);
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
+
+    throw error; // ❌ do NOT redirect here
   }
 };

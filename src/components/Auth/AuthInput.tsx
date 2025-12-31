@@ -73,7 +73,7 @@ export default function AuthInput({
                 <TouchableOpacity
                     onPress={onSendOtp}
                     disabled={otpSent}
-                    className={`ml-3 px-3 py-1 rounded-full ${otpSent ? "bg-gray-300" : "bg-emerald-600"
+                    className={`ml-3 px-3 py-1 rounded-full ${otpSent ? "bg-gray-300" : "bg-emerald-500"
                         }`}
                 >
                     <Text className="text-white text-xs font-semibold">

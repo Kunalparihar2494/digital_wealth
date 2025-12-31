@@ -12,7 +12,7 @@ export default function Button({
     title,
     onPress,
     loading = false,
-    color = "bg-green-600",
+    color = "bg-emerald-500",
     disabled = false,
 }: ButtonProps) {
     return (
