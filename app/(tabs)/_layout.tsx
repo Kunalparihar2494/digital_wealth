@@ -1,7 +1,6 @@
 // app/(tabs)/_layout.tsx
 
 import BottomTabs from "@/src/components/shared/BottomTabs";
-import TradeBottomSheet from "@/src/components/shared/TradeBottomSheet";
 import { Stack } from "expo-router";
 import { View } from "react-native";
 
@@ -13,7 +12,6 @@ export default function TabsLayout() {
 
             {/* Bottom Tab Bar */}
             <BottomTabs />
-            <TradeBottomSheet />
         </View>
     );
 }

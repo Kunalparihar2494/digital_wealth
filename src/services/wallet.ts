@@ -13,7 +13,9 @@ export const getWalletBalance = async () => {
   } catch (error: any) {
     // Log useful error details for debugging in native/Expo logs
     console.error("get balance error:", error.message || error);
-    router.replace("/(auth)/login");
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
     throw error;
   }
 };
@@ -22,11 +24,45 @@ export const topUpBalance = async (data: ITopUpData) => {
   try {
     // NOTE: confirm the endpoint path and case with your backend (e.g. "/Orders" vs "/orders").
     const res = await api.post(API_BASE_URL + `/topup`, data); // Replace with your endpoint if needed
-    return res.data;
+    return res;
   } catch (error: any) {
     // Log useful error details for debugging in native/Expo logs
     console.error("get balance error:", error.message || error);
-    router.replace("/(auth)/login");
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
     throw error;
+  }
+};
+
+export const getTransactions = async () => {
+  try {
+    // ✅ Only endpoint path — baseURL is already set
+    const res = await api.get("/AppAccess/transactions");
+    return res.data;
+  } catch (error: any) {
+    console.error("transaction error:", error?.message || error);
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
+
+    throw error; // ❌ do NOT redirect here
+  }
+};
+
+export const getPaymentStatus = async (customerReference: string) => {
+  try {
+    // ✅ Only endpoint path — baseURL is already set
+    const res = await api.get(
+      `/AppAccess/Paymentstatus?custRefNum=${customerReference}`
+    );
+    return res.data;
+  } catch (error: any) {
+    console.error("payment error:", error?.message || error);
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
+
+    throw error; // ❌ do NOT redirect here
   }
 };

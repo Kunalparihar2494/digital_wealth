@@ -2,23 +2,53 @@ import Header from "@/src/components/shared/Header";
 import { FundsActionButton } from "@/src/components/Wallet/FundsActionButton";
 import { MarginCard } from "@/src/components/Wallet/MarginCard";
 import { TransactionHeader } from "@/src/components/Wallet/TransactionHeader";
-import { useWalletStore } from "@/src/store/wallet.store";
-import { router } from "expo-router";
-import React, { useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { TransactionItem } from "@/src/components/Wallet/TransactionItem";
+import { usePaymentStatusCheck, useTransactionStore, useWalletStore } from "@/src/store/wallet.store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect } from "react";
+import { Alert, FlatList, Text, View } from "react-native";
 
 export default function Wallet() {
+    const { data, fetchBalance } = useWalletStore();
+    const { transactionData, fetchTransactions } = useTransactionStore();
+    const { fetchPaymentStatus } = usePaymentStatusCheck();
 
-    const { data, loading, fetchBalance } = useWalletStore();
+    useFocusEffect(
+        useCallback(() => {
+            const checkPayment = async () => {
+                const ref = await AsyncStorage.getItem("lastPaymentRef");
+                if (!ref) return;
 
+                try {
+                    const res = (await fetchPaymentStatus(ref)) as unknown as {
+                        status: "Success" | "Failed" | "Pending";
+                    };
+
+                    if (res.status === "Success") {
+                        Alert.alert("Success", "Funds added successfully");
+                        await fetchBalance();
+                    } else if (res.status === "Failed") {
+                        Alert.alert("Failed", "Payment failed");
+                    } else {
+                        Alert.alert("Pending", "Payment is still processing");
+                    }
+
+                    await AsyncStorage.removeItem("lastPaymentRef");
+                } catch {
+                    Alert.alert("Error", "Unable to verify payment");
+                }
+            };
+
+            checkPayment();
+        }, [])
+    );
 
     useEffect(() => {
-        console.log("wallet data ->", data);
+        fetchBalance();
+        fetchTransactions();
+    }, []);
 
-        if (!data && !loading) {
-            fetchBalance();
-        }
-    }, [data, loading, fetchBalance]);
 
     const funds = {
         availableMargin: 0.9,
@@ -40,55 +70,63 @@ export default function Wallet() {
     return (
         <View className="flex-1 bg-gray-100">
             <Header showBackButton={true} showWallet={false} />
-            <ScrollView
-                className="px-4 mt-4"
+
+            <FlatList
+                data={transactionData?.transactions ?? []}
+                keyExtractor={(item) => item.id.toString()}
+
+                renderItem={({ item }) => (
+                    <TransactionItem
+                        title={item.type}
+                        date={item.createdAt}
+                        amount={item.amount}
+                        statusColor={item.statusColor}
+                    />
+                )}
+
+                ListHeaderComponent={
+                    <View className="px-4 mt-4">
+                        {/* BALANCE CARD */}
+                        <View className="mt-2">
+                            <MarginCard amount={data?.balance} />
+                        </View>
+
+                        {/* ACTION BUTTONS */}
+                        <View className="flex-row gap-4 mb-6 mt-4">
+                            <FundsActionButton
+                                onPress={() => router.replace("/(pages)/addFunds")}
+                                label="Add funds"
+                                color="#22C55E"
+                            />
+                            <FundsActionButton
+                                label="Withdraw"
+                                color="#3B82F6"
+                            />
+                        </View>
+
+                        {/* TRANSACTION HEADER */}
+                        <TransactionHeader onSeeAll={() => console.log("See all")} />
+                    </View>
+                }
+
+                ListEmptyComponent={
+                    <View className="items-center justify-center py-20">
+                        <Text className="text-gray-500 text-lg font-medium">
+                            No transaction detail found
+                        </Text>
+                    </View>
+                }
+
+                ItemSeparatorComponent={() => (
+                    <View className="h-0.5 bg-gray-100 mx-4" />
+                )}
+
+                contentContainerStyle={{
+                    paddingBottom: 40,
+                }}
+
                 showsVerticalScrollIndicator={false}
-            >
-                <View className="">
-                    <View className="mt-2">
-                        <MarginCard amount={data && data?.balance} />
-                    </View>
-
-
-                    {/* ACTION BUTTONS */}
-                    <View className="flex-row gap-4 mb-6">
-                        <FundsActionButton onPress={() => router.replace("/(pages)/addFunds")} label="Add funds" color="#22C55E" />
-                        <FundsActionButton label="Withdraw" color="#3B82F6" />
-                    </View>
-                </View>
-
-
-                {/* <FundsSummary
-                    available={funds.availableCash}
-                    used={funds.usedMargin}
-                /> */}
-
-                {/* <View className="mt-4">
-                    {funds.breakdown.map((item, index) => (
-                        <FundsRowItem
-                            key={index}
-                            label={item.label}
-                            value={item.value}
-                        />
-                    ))}
-                </View> */}
-
-                <TransactionHeader onSeeAll={() => console.log("See all")} />
-
-                {/* <TransactionItem
-                    title="Amount Debited"
-                    date="October 17, 09:00 PM"
-                    amount="-₹44.80"
-                />
-
-                <TransactionItem
-                    title="Amount Credited"
-                    date="October 15, 10:00 AM"
-                    amount="+₹1,250"
-                    isCredit
-                /> */}
-
-            </ScrollView>
+            />
         </View>
 
     );

@@ -14,3 +14,27 @@ export interface ITopUp {
   custRefNum: string;
   transactionId: number;
 }
+
+export interface ITransactionRoot {
+  success: boolean;
+  page: number;
+  pageSize: number;
+  transactions: ITransaction[];
+}
+
+export interface ITransaction {
+  id: number;
+  amount: number;
+  createdAt: string;
+  type: string;
+  description: string;
+  note: string;
+  status: string;
+  statusColor: string;
+  reference: string;
+}
+
+export interface IPayment {
+  success: boolean;
+  status: string;
+}

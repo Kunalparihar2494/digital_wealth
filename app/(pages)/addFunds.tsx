@@ -16,7 +16,7 @@ import {
 const PAYMENT_URL = "https://digitalwealth.in/Auth/Home";
 
 export default function AddFund() {
-    const { topupData, fetchTopUpStatus } = useWalletTopUpStatus();
+    const { fetchTopUpStatus } = useWalletTopUpStatus();
     const [amount, setAmount] = useState("");
 
     const handleAddFunds = async () => {
@@ -27,23 +27,27 @@ export default function AddFund() {
 
         const userData = await AsyncStorage.getItem("userData");
         const { email } = userData ? JSON.parse(userData) : { email: "" };
-        const transactionData: ITopUpData = {
-            amount: amount,
-            email: email
-        }
-        await fetchTopUpStatus(transactionData);
 
-        if (!topupData) {
-            Alert.alert("Error", "Unable to process payment");
-            return;
-        }
+        const payload: ITopUpData = { amount, email };
 
-        const { success, gatewayPayload } = topupData;
+        try {
+            const res = (await fetchTopUpStatus(payload)) as unknown as {
+                success: boolean;
+                gatewayPayload?: string;
+                custRefNum?: string;
+            };
 
-        if (success && gatewayPayload) {
-            Linking.openURL(gatewayPayload);
-        } else {
-            Alert.alert("Error", "Unable to open payment page");
+            if (res.success && res.gatewayPayload && res.custRefNum) {
+                // ✅ Save reference for later verification
+                await AsyncStorage.setItem("lastPaymentRef", res.custRefNum);
+
+                // ✅ Open Easebuzz payment page
+                Linking.openURL(res.gatewayPayload);
+            } else {
+                Alert.alert("Error", "Unable to initiate payment");
+            }
+        } catch {
+            Alert.alert("Error", "Payment initiation failed");
         }
     };
 

@@ -4,13 +4,17 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import SharePopup from "../shared/SharePopup";
 
 export default function PortfolioCard({
+    id,
     title,
     amount,
     image,
+    minQuantity
 }: {
+    id: number,
     title: string;
     amount: string;
     image?: string;
+    minQuantity?: string | number;
 }) {
     const [open, setOpen] = useState(false);
     return (
@@ -39,13 +43,13 @@ export default function PortfolioCard({
                 visible={open}
                 onClose={() => setOpen(false)}
                 share={{
+                    id: id,
                     company: title,
                     price: amount,
-                    minQuantity: 1000,
-                }}
-                onBuy={() => {
-                    setOpen(false);
-                    console.log("Buy pressed");
+                    minQuantity:
+                        typeof minQuantity === "string"
+                            ? parseInt(minQuantity, 10)
+                            : minQuantity ?? 0,
                 }}
             />
         </>

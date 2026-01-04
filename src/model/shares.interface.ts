@@ -11,7 +11,7 @@ export interface IShareDetail {
   brandName: string;
   sector: string;
   isin: string;
-  minQuantity: number;
+  minQuantity: number | string;
   logo: string;
   price: number;
   logoFile: string;
@@ -21,4 +21,11 @@ export interface IShareDetail {
   blogId?: number;
   blog: any;
   onPress?: () => void;
+}
+
+export interface ICreateOrder {
+  message: string;
+  requiredAmount: number;
+  success: boolean;
+  walletBalance: number;
 }

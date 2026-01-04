@@ -3,8 +3,8 @@ import { Text, View } from "react-native";
 type Props = {
     title: string;
     date: string;
-    amount: string;
-    isCredit?: boolean;
+    amount: string | number;
+    statusColor?: string;
     logo?: any;
 };
 
@@ -12,9 +12,20 @@ export function TransactionItem({
     title,
     date,
     amount,
-    isCredit,
+    statusColor,
     logo,
 }: Props) {
+    const simpleDate = new Date(date);
+    const formattedDate = simpleDate.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    const formattedTime = simpleDate.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+    });
     return (
         <View className="flex-row items-center justify-between px-3 py-3 border-b border-gray-200">
             <View className="flex-row items-center">
@@ -33,13 +44,13 @@ export function TransactionItem({
                         {title}
                     </Text>
                     <Text className="text-xs text-gray-500">
-                        {date}
+                        {formattedDate} at {formattedTime}
                     </Text>
                 </View>
             </View>
 
             <Text
-                className={`font-semibold ${isCredit ? "text-emerald-600" : "text-red-600"
+                className={`font-semibold ${statusColor === 'success' ? "text-emerald-600" : "text-red-600"
                     }`}
             >
                 {amount}

@@ -17,10 +17,11 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
     const insets = useSafeAreaInsets(); // ✅ ADD
     const user = useUserStore((s) => s.user);
     const logout = useAuthStore((s) => s.logout);
+    const loadUser = useUserStore((s) => s.loadUser);
 
     useEffect(() => {
-        useUserStore.getState().loadUser();
-    }, []);
+        loadUser();
+    }, [loadUser]);
 
     return (
         <View

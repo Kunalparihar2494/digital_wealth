@@ -11,7 +11,6 @@ type SectorSectionProps = {
 
 export default function SectorSection({ title, data }: SectorSectionProps) {
     if (!data || data.length === 0) return null;
-
     return (
         <>
             <SectionHeaderDashBoard title={title} />
@@ -24,9 +23,11 @@ export default function SectorSection({ title, data }: SectorSectionProps) {
                 {data.map((item, index) => (
                     <PortfolioCard
                         key={item.id ?? index}
+                        id={item.id}
                         title={item.company}
                         amount={`₹${item.price || 0}`}
                         image={item.logo} // optional (if you add image support)
+                        minQuantity={item.minQuantity}
                     />
                 ))}
             </ScrollView>
