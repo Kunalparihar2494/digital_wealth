@@ -17,6 +17,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ loading: true });
     try {
       const data = await getDashboardDetails();
+      console.log("store data-", data);
       set({ data });
     } finally {
       set({ loading: false });

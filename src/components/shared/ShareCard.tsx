@@ -15,7 +15,7 @@ export default function ShareCard({ share, onPress }: ShareCardProps) {
 
                 {/* COMPANY NAME */}
                 <Text className="text-base font-semibold text-gray-800 mb-2">
-                    {share.company}
+                    {share?.company}
                 </Text>
 
                 {/* PRICE + LOT SIZE */}
@@ -23,14 +23,14 @@ export default function ShareCard({ share, onPress }: ShareCardProps) {
                     <View>
                         <Text className="text-xs text-gray-500">Price</Text>
                         <Text className="text-sm font-semibold text-emerald-600">
-                            ₹{share.price ?? "-"}
+                            ₹{share?.price ?? "-"}
                         </Text>
                     </View>
 
                     <View className="items-end">
                         <Text className="text-xs text-gray-500">Min Qty</Text>
                         <Text className="text-sm font-semibold text-gray-800">
-                            {share.minQuantity ?? "-"}
+                            {share?.minQuantity ?? "-"}
                         </Text>
                     </View>
                 </View>

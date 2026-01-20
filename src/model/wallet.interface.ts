@@ -38,3 +38,9 @@ export interface IPayment {
   success: boolean;
   status: string;
 }
+
+export interface IWithdrawReq {
+  success: boolean;
+  message: string;
+  requestId: number;
+}

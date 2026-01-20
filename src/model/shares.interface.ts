@@ -29,3 +29,15 @@ export interface ICreateOrder {
   success: boolean;
   walletBalance: number;
 }
+
+export interface IHoldingShares {
+  shareId: number;
+  shareName: string;
+  totalQuantity: number;
+  averagePrice: number;
+  currentPrice: number;
+  investedAmount: number;
+  currentValue: number;
+  profitLoss: number;
+  profitLossPercent: number;
+}

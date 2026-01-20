@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
 import { router } from "expo-router";
-import { Bell, ChevronLeft, Wallet } from "lucide-react-native";
+import { ChevronLeft, Wallet } from "lucide-react-native";
 import { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context"; // ✅ ADD
@@ -35,9 +35,11 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                         <ChevronLeft size={20} color="#374151" />
                     </TouchableOpacity>}
                     <View className="w-10 h-10 rounded-full bg-indigo-100 items-center justify-center mr-3 border-black border-2">
-                        <Text className="text-indigo-600 font-bold text-lg">
-                            {user?.fullName?.charAt(0) ?? "U"}
-                        </Text>
+                        <TouchableOpacity
+                            onPress={() => router.replace("/(tabs)/profile")}><Text className="text-indigo-600 font-bold text-lg">
+                                {user?.fullName?.charAt(0) ?? "U"}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View>
@@ -54,10 +56,10 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                         <Search size={20} color="#374151" />
                     </TouchableOpacity> */}
 
-                    <TouchableOpacity className="p-2 mr-2 relative">
+                    {/* <TouchableOpacity className="p-2 mr-2 relative">
                         <Bell size={20} color="#374151" />
                         <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     {showWallet && <TouchableOpacity className="p-2" onPress={() => router.replace("/(pages)/wallet")}>
                         <Wallet size={20} color="#374151" />
                     </TouchableOpacity>}

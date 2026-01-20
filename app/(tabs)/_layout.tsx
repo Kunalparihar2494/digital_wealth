@@ -7,10 +7,7 @@ import { View } from "react-native";
 export default function TabsLayout() {
     return (
         <View style={{ flex: 1 }}>
-            {/* Screens inside (tabs) */}
             <Stack screenOptions={{ headerShown: false }} />
-
-            {/* Bottom Tab Bar */}
             <BottomTabs />
         </View>
     );

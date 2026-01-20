@@ -29,9 +29,9 @@ export default function AuthLayout({
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
             >
-                <View className="flex-1 items-center justify-center bg-gray-100 px-5">
+                <View className="flex-1 items-center justify-center bg-gray-600 px-5">
                     {/* Card */}
-                    <View className="bg-white flex-row w-full max-w-sm rounded-3xl px-6 py-8 shadow-lg">
+                    <View className="bg-gray-600 flex-row w-full max-w-sm rounded-3xl px-6 py-8 shadow-lg">
 
                         {/* Logo */}
                         {/* <View className="items-center mb-6"> */}

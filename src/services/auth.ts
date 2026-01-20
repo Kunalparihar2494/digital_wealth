@@ -1,13 +1,18 @@
 // src/services/auth.ts
 
-import { LoginData, SignupData } from "../model/auth.interface";
+import {
+  IForgotPassword,
+  LoginData,
+  SignupData,
+} from "../model/auth.interface";
 import api from "./api";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 const appAccess = API_BASE_URL + `AppAccess`;
 
 export const loginUser = async ({ contact, pin }: LoginData) => {
   const res = await api.post(
-    appAccess + `/Applogin?MobileNumber=${contact}&password=${pin}`
+    appAccess +
+      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=test`
   );
   return res.data;
 };
@@ -49,6 +54,38 @@ export const createAccount = async (payload: any) => {
     `${API_BASE_URL}AppAccess/CreateAccount?key=${key}`,
     payload
   );
+
+  return res.data;
+};
+
+export const ForgetPasswordOTP = async (phone: string) => {
+  const obj = {
+    contact: phone,
+    key: process.env.EXPO_PUBLIC_CLIENT_KEY,
+  };
+
+  const res = await api.post(`/AppAccess/ForgetPasswordOTP`, obj, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.data;
+};
+
+export const ForgotPasswordApi = async (data: IForgotPassword) => {
+  const obj = {
+    contact: data.contact,
+    key: process.env.EXPO_PUBLIC_CLIENT_KEY,
+    OTP: data.OTP,
+    password: data.password,
+  };
+
+  const res = await api.post(`/AppAccess/forgotPassword`, obj, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   return res.data;
 };

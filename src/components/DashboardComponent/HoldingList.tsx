@@ -1,17 +1,9 @@
+import { IHoldingShares } from "@/src/model/shares.interface";
 import React from "react";
 import { Text, View } from "react-native";
 
-type HoldingItem = {
-    name: string;
-    qty: number;
-    price: string;
-    pnl: string;
-    percent: string;
-    isLoss?: boolean;
-};
-
 type Props = {
-    data: HoldingItem[];
+    data?: IHoldingShares[];
     visibleCount?: number;
 };
 
@@ -33,7 +25,7 @@ export default function HoldingsList({
     return (
         <View className="mx-4">
             {data.slice(0, visibleCount).map((item, index) => {
-                const isLoss = item.isLoss;
+                const isLoss = item.profitLoss;
 
                 return (
                     <View
@@ -43,26 +35,26 @@ export default function HoldingsList({
                         {/* LEFT */}
                         <View>
                             <Text className="font-semibold text-gray-900">
-                                {item.name}
+                                {item.shareName}
                             </Text>
                             <Text className="text-xs text-gray-500">
-                                Qty: {item.qty} · Price: {item.price}
+                                Qty: {item.totalQuantity} · Price: {item.currentPrice}
                             </Text>
                         </View>
 
                         {/* RIGHT */}
                         <View className="items-end">
                             <Text
-                                className={`font-semibold ${isLoss ? "text-red-500" : "text-emerald-600"
+                                className={`font-semibold ${isLoss < 0 ? "text-red-500" : "text-emerald-600"
                                     }`}
                             >
-                                {item.pnl}
+                                {item.profitLoss}
                             </Text>
                             <Text
-                                className={`text-xs ${isLoss ? "text-red-500" : "text-emerald-600"
+                                className={`text-xs ${isLoss < 0 ? "text-red-500" : "text-emerald-600"
                                     }`}
                             >
-                                {item.percent}
+                                {item.profitLossPercent}
                             </Text>
                         </View>
                     </View>

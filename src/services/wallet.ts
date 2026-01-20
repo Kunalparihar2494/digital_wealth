@@ -66,3 +66,18 @@ export const getPaymentStatus = async (customerReference: string) => {
     throw error; // ❌ do NOT redirect here
   }
 };
+
+export const withdrawRequest = async (amount: number) => {
+  try {
+    // ✅ Only endpoint path — baseURL is already set
+    const res = await api.post(`/AppAccess/RequestWithdrawal?amount=${amount}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("withdraw error:", error?.message || error);
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
+
+    throw error; // ❌ do NOT redirect here
+  }
+};

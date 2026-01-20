@@ -41,9 +41,9 @@ export default function AuthInput({
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <View className="flex-row items-center bg-gray-50 border border-gray-300 rounded-xl px-4 py-1 mb-4">
+        <View className="flex-row items-center bg-white border border-gray-300 rounded-xl px-4 py-1 mb-4 shadow-xl">
             {/* Left Icon */}
-            {icon && <View className="mr-3">{icon}</View>}
+            {/* {icon && <View className="mr-3">{icon}</View>} */}
 
             {/* Input */}
             <TextInput

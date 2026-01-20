@@ -11,19 +11,20 @@ export default function AuthScreenLayout({
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1 }}
-            className="bg-gray-100"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <ScrollView
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-                contentContainerClassName="bg-gray-100 mt-4 pt-4"
+                contentContainerStyle={{
+                    paddingTop: insets.top + 40,
+                    paddingBottom: 40,
+                    flexGrow: 1,
+                }}
+                className="bg-white"
             >
-                <View className="px-4 items-center ">
-                    {children}
-                </View>
+                <View className="px-6">{children}</View>
             </ScrollView>
         </KeyboardAvoidingView>
     );

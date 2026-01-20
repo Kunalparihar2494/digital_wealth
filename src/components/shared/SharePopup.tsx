@@ -1,15 +1,18 @@
 import { ICreateOrder } from "@/src/model/shares.interface";
 import { buyShares } from "@/src/services/shares";
 import { useWalletStore } from "@/src/store/wallet.store";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
     Alert,
     Modal,
     Pressable,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import BuyConfirmPopup from "../Shares/BuyConfirmPopup";
 
 type SharePopupProps = {
@@ -21,75 +24,79 @@ type SharePopupProps = {
         price: number | string;
         minQuantity: number;
     } | null;
-    onBuy?: () => void;
 };
 
 export default function SharePopup({
     visible,
     onClose,
     share,
-    onBuy,
 }: SharePopupProps) {
-    const { data, loading, fetchBalance } = useWalletStore();
+    const { data, fetchBalance } = useWalletStore();
+
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [quantity, setQuantity] = useState<number>(share?.minQuantity ?? 0);
 
-    const parsePrice = (p: number | string) => {
-        if (typeof p === "number") return p;
-        const cleaned = String(p).replace(/[^0-9.-]+/g, "");
-        const parsed = parseFloat(cleaned);
-        return Number.isFinite(parsed) ? parsed : 0;
-    };
-
-    const handleBuy = () => {
-        setConfirmOpen(false);
-        if (share?.price && share?.minQuantity) {
-            const total = parsePrice(share?.price) * share?.minQuantity;
-            const formattedTotal = total.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            });
-
-            if (data) {
-                if (parsePrice(formattedTotal) > data?.balance) {
-                    Alert.alert("Failure", "Please recharge your wallet");
-                } else {
-                    handleBuyShares();
-                }
-
-            }
+    useEffect(() => {
+        if (share?.minQuantity) {
+            setQuantity(share.minQuantity);
         }
-    }
-
-    const handleBuyShares = async () => {
-        try {
-            const result: ICreateOrder = await buyShares(share?.id, share?.minQuantity);
-            if (result.success) {
-                Alert.alert("Success", "Share bought successfully");
-            }
-            else {
-                Alert.alert("Failure", "Please recharge your wallet");
-            }
-
-        } catch (error: any) {
-
-        }
-    }
-
+    }, [share]);
 
     useEffect(() => {
         if (!data) fetchBalance();
-    }, [])
+    }, []);
+
+    const parsePrice = (p: number | string) => {
+        if (typeof p === "number") return p;
+        return parseFloat(String(p).replace(/[^0-9.]/g, "")) || 0;
+    };
+
+    const price = parsePrice(share?.price ?? 0);
+    const totalAmount = price * quantity;
+
+    const handleBuy = async () => {
+        setConfirmOpen(false);
+
+        if (!quantity || quantity < (share?.minQuantity ?? 0)) {
+            Alert.alert(
+                "Invalid Quantity",
+                `Minimum quantity is ${share?.minQuantity}`
+            );
+            return;
+        }
+
+        if (!data || totalAmount > data.balance) {
+            Alert.alert("Insufficient Balance", "Please recharge your wallet");
+            router.replace("/(pages)/wallet");
+        }
+
+        try {
+            const result: ICreateOrder = await buyShares(
+                share!.id,
+                quantity
+            );
+
+            if (result.success) {
+                Alert.alert("Success", "Share bought successfully");
+                onClose();
+            } else {
+                Alert.alert("Failure", result.message ?? "Order failed");
+            }
+        } catch {
+            Alert.alert("Error", "Unable to place order");
+        }
+    };
 
     if (!share) return null;
 
     return (
-        <>
+        <SafeAreaProvider>
             <Modal
+                className=""
                 transparent
                 visible={visible}
                 animationType="slide"
                 onRequestClose={onClose}
-                className=""
             >
                 {/* Backdrop */}
                 <Pressable
@@ -97,38 +104,51 @@ export default function SharePopup({
                     onPress={onClose}
                 />
 
-                {/* Popup Card */}
-                <View className="bg-white rounded-t-3xl px-5 py-6">
+                {/* Popup */}
+                <View className="bg-white rounded-t-3xl px-5 py-8 bottom-0">
                     {/* Header */}
-                    <Text className="text-lg font-semibold text-gray-800 mb-2">
+                    <Text className="text-lg font-semibold text-gray-800 mb-4">
                         {share.company}
                     </Text>
 
-                    {/* Details */}
-                    <View className="flex-row justify-between mb-4">
-                        <View>
-                            <Text className="text-xs text-gray-500">Price</Text>
-                            <Text className="text-base font-semibold">
-                                {share.price}
-                            </Text>
-                        </View>
-
-                        <View>
-                            <Text className="text-xs text-gray-500">Min Qty</Text>
-                            <Text className="text-base font-semibold">
-                                {share.minQuantity}
-                            </Text>
-                        </View>
+                    {/* Price (Read only) */}
+                    <View className="mb-4">
+                        <Text className="text-xs text-gray-500">Price</Text>
+                        <Text className="text-base font-semibold">
+                            ₹ {price}
+                        </Text>
                     </View>
 
-                    {/* Buy Button */}
+                    {/* Quantity (Editable) */}
+                    <View className="mb-4">
+                        <Text className="text-xs text-gray-500">
+                            Quantity (Min {share.minQuantity})
+                        </Text>
+                        <TextInput
+                            value={String(quantity)}
+                            keyboardType="numeric"
+                            onChangeText={(val) =>
+                                setQuantity(Number(val.replace(/[^0-9]/g, "")))
+                            }
+                            className="border border-gray-300 rounded-xl px-4 py-2 text-base"
+                        />
+                    </View>
+
+                    {/* Total */}
+                    <View className="flex-row justify-between mb-6">
+                        <Text className="text-gray-500 text-sm">
+                            Total Amount
+                        </Text>
+                        <Text className="text-gray-900 font-semibold">
+                            ₹ {totalAmount.toLocaleString("en-IN")}
+                        </Text>
+                    </View>
+
+                    {/* Buy */}
                     <TouchableOpacity
-                        onPress={() => {
-                            onClose();
-                            setConfirmOpen(true);
-                        }}
+                        onPress={() => setConfirmOpen(true)}
                         className="bg-emerald-600 py-3 rounded-xl"
-                        activeOpacity={0.8}
+                        activeOpacity={0.85}
                     >
                         <Text className="text-white text-center font-semibold text-base">
                             Buy
@@ -142,14 +162,16 @@ export default function SharePopup({
                 </View>
             </Modal>
 
+            {/* CONFIRMATION */}
             <BuyConfirmPopup
                 visible={confirmOpen}
                 company={share.company}
-                price={share.price}
-                quantity={share.minQuantity}
+                price={price}
+                quantity={quantity}
+                total={totalAmount}
                 onClose={() => setConfirmOpen(false)}
                 onConfirm={handleBuy}
             />
-        </>
+        </SafeAreaProvider>
     );
 }

@@ -101,6 +101,7 @@ export default function Wallet() {
                             <FundsActionButton
                                 label="Withdraw"
                                 color="#3B82F6"
+                                onPress={() => router.replace("/(pages)/addFunds")}
                             />
                         </View>
 

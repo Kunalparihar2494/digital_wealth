@@ -32,3 +32,18 @@ export const buyShares = async (shareId: any, quantity: any) => {
     throw error; // ❌ do NOT redirect here
   }
 };
+
+export const holdingApi = async () => {
+  try {
+    // ✅ Only endpoint path — baseURL is already set
+    const res = await api.get(`/AppAccess/RetailHoldings`);
+    return res.data;
+  } catch (error: any) {
+    console.error("holding error:", error?.message || error);
+    if (error.response?.status === 401) {
+      router.replace("/(auth)/login");
+    }
+
+    throw error; // ❌ do NOT redirect here
+  }
+};

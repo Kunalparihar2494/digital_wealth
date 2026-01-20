@@ -1,57 +1,52 @@
 
-import ComingSoon from "@/src/components/shared/Comingsoon";
 import Header from "@/src/components/shared/Header";
+import ShareCard from "@/src/components/shared/ShareCard";
+import SharePopup from "@/src/components/shared/SharePopup";
+import ShareSearch from "@/src/components/shared/ShareSearch";
 import { IShare, IShareDetail } from "@/src/model/shares.interface";
 import { getShares } from "@/src/services/shares";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 
 export default function Shares() {
     const [loading, setLoading] = useState(false);
     const [shares, setShares] = useState<IShareDetail[]>([]);
-    // const [shares, setShares] = useState([]);
     const [search, setSearch] = useState("");
-
+    const [open, setOpen] = useState(false);
+    const [selectedShare, setSelectedShare] = useState<IShareDetail | null>(null);
 
     useEffect(() => {
-        getShare();
-    }, [])
+        fetchShares();
+    }, []);
 
-    const filteredShares = shares.filter((item) => {
-        const text = search.toLowerCase();
-        return (
-            item.company.toLowerCase().includes(text) ||
-            item.brandName.toLowerCase().includes(text)
-        );
-    });
-
-
-    const getShare = async () => {
+    const fetchShares = async () => {
         try {
             setLoading(true);
             const data: IShare = await getShares();
-            if (data) {
-                setShares(data.shares ?? data.orders ?? []);
-            } else {
-                Alert.alert("Data Failed");
-            }
-        } catch (err: any) {
-            console.log("getShare error:", err.message ?? err);
-            Alert.alert(
-                "Error",
-                "Something went wrong. Please try again later.",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => router.replace("/(auth)/login"), // redirect to login
-                    },
-                ]
-            );
+            setShares(data?.shares ?? []);
+        } catch (err) {
+            Alert.alert("Error", "Unable to load shares");
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    /** 🔍 FILTERED SHARES */
+    const filteredShares = useMemo(() => {
+        if (!search.trim()) return shares;
+
+        const text = search.toLowerCase();
+        return shares.filter(
+            (s) =>
+                s.company?.toLowerCase().includes(text) ||
+                s.brandName?.toLowerCase().includes(text)
+        );
+    }, [search, shares]);
+
+    const handleBuy = (share: IShareDetail) => {
+        setSelectedShare(share);
+        setOpen(true);
+    };
 
     if (loading) {
         return (
@@ -63,26 +58,53 @@ export default function Shares() {
     }
 
     return (
-        <View className="flex-1">
+        <View className="flex-1 bg-white">
             <Header />
-            {/* <Text className="text-2xl mt-10 font-bold text-center mb-6 text-gray-600">
+
+            <Text className="text-2xl font-bold text-center mt-6 mb-4 text-gray-700">
                 Unlisted Shares
             </Text>
 
-            <SearchBar value={search} onChangeText={setSearch} />
+            {/* 🔍 SEARCH */}
+            <View className="mx-4 mb-4">
+                <ShareSearch value={search} onChange={setSearch} />
+            </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-                {filteredShares.length > 0 ? (
-                    filteredShares.map((s: any) => (
-                        <ShareCard key={s.id} {...s} />
-                    ))
-                ) : (
-                    <Text className="text-center text-gray-500 mt-10">
-                        No shares found.
-                    </Text>
+            {/* 📃 LIST */}
+            <FlatList
+                data={filteredShares}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <ShareCard
+                        share={item}
+                        onPress={() => handleBuy(item)}
+                    />
                 )}
-            </ScrollView> */}
-            <ComingSoon />
+                ListEmptyComponent={
+                    <Text className="text-center text-gray-500 mt-10">
+                        No shares found
+                    </Text>
+                }
+                contentContainerStyle={{ paddingBottom: 40 }}
+                showsVerticalScrollIndicator={false}
+            />
+
+            {/* 🧾 BUY POPUP */}
+            {selectedShare && (
+                <SharePopup
+                    visible={open}
+                    onClose={() => setOpen(false)}
+                    share={{
+                        id: selectedShare?.id ?? 0,
+                        company: selectedShare?.company ?? '',
+                        price: selectedShare?.price ?? 0,
+                        minQuantity:
+                            typeof selectedShare?.minQuantity === "string"
+                                ? parseInt(selectedShare.minQuantity, 10)
+                                : selectedShare?.minQuantity ?? 0,
+                    }}
+                />
+            )}
         </View>
     );
 }

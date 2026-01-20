@@ -1,6 +1,6 @@
 import Header from "@/src/components/shared/Header";
 import { ITopUpData } from "@/src/model/wallet.interface";
-import { useWalletTopUpStatus } from "@/src/store/wallet.store";
+import { useWalletStore, useWalletTopUpStatus } from "@/src/store/wallet.store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import {
@@ -17,6 +17,7 @@ const PAYMENT_URL = "https://digitalwealth.in/Auth/Home";
 
 export default function AddFund() {
     const { fetchTopUpStatus } = useWalletTopUpStatus();
+    const { data } = useWalletStore();
     const [amount, setAmount] = useState("");
 
     const handleAddFunds = async () => {
@@ -35,21 +36,37 @@ export default function AddFund() {
                 success: boolean;
                 gatewayPayload?: string;
                 custRefNum?: string;
+                message?: string;
             };
-
+            console.log(res)
             if (res.success && res.gatewayPayload && res.custRefNum) {
                 // ✅ Save reference for later verification
                 await AsyncStorage.setItem("lastPaymentRef", res.custRefNum);
 
                 // ✅ Open Easebuzz payment page
                 Linking.openURL(res.gatewayPayload);
-            } else {
-                Alert.alert("Error", "Unable to initiate payment");
+            }
+            else if (!res.success && res.message) {
+                Alert.alert("Error", res?.message);
+            }
+            else {
+                Alert.alert("Error", "Unable to initiate payment ");
             }
         } catch {
             Alert.alert("Error", "Payment initiation failed");
         }
     };
+
+    const handleWithdrawFund = async () => {
+        try {
+            const numAmount = parseInt(amount, 10)
+            const numData = data?.balance ?? 0;
+            if (numAmount > numData) Alert.alert("Error", "Payment is more than margin"); return
+
+        } catch (error) {
+            Alert.alert("Error", "Payment initiation failed");
+        }
+    }
 
     return (
         <View className="flex-1 bg-gray-100">
@@ -92,15 +109,27 @@ export default function AddFund() {
                     </View>
 
                     {/* Add Button */}
-                    <TouchableOpacity
-                        onPress={handleAddFunds}
-                        activeOpacity={0.85}
-                        className="bg-emerald-600 py-4 rounded-xl"
-                    >
-                        <Text className="text-white text-center text-base font-semibold">
-                            Add Funds
-                        </Text>
-                    </TouchableOpacity>
+                    <View className="flex-1 gap-4 mb-6 mt-4">
+                        <TouchableOpacity
+                            onPress={handleAddFunds}
+                            activeOpacity={0.85}
+                            className="bg-emerald-600 py-4 rounded-xl"
+                        >
+                            <Text className="text-white text-center text-base font-semibold">
+                                Add Funds
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={handleWithdrawFund}
+                            activeOpacity={0.85}
+                            className="bg-blue-600 py-4 rounded-xl"
+                        >
+                            <Text className="text-white text-center text-base font-semibold">
+                                Withdraw Funds
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
                 {/* INFO */}

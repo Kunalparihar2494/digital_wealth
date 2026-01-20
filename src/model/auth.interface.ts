@@ -12,6 +12,7 @@ export interface IUserDetail {
   email: string;
   role: string;
   status: number;
+  kycstatus: boolean;
   lastlogin: string;
   createdByUserId: number;
   isEmailVerified: boolean;
@@ -31,4 +32,11 @@ export interface SignupData {
   email: string;
   password: string;
   phone?: string;
+}
+
+export interface IForgotPassword {
+  contact: string;
+  key?: string;
+  OTP: string;
+  password: string;
 }
