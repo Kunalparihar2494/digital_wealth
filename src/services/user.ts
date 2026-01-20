@@ -4,7 +4,7 @@ import api from "./api";
 export const deleteUser = async () => {
   try {
     // ✅ Only endpoint path — baseURL is already set
-    const res = await api.get("/AppAccess/DeleteAccount");
+    const res = await api.post("/AppAccess/DeleteAccount");
     return res.data;
   } catch (error: any) {
     console.error("getShares error:", error?.message || error);

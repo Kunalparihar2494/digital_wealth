@@ -6,13 +6,15 @@ import { deleteUser } from "@/src/services/user";
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
 import { logout } from "@/src/utils/logout";
+import { getToken } from "@/src/utils/storage";
 import { router } from "expo-router";
 import { Delete, LogOut, User, Wallet } from "lucide-react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 
 export default function ProfileScreen() {
     // const [user, setUser] = useState<IUserDetail | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const user = useUserStore((s) => s.user);
     // useEffect(() => {
     //     const loadUser = async () => {
@@ -22,12 +24,20 @@ export default function ProfileScreen() {
     //     loadUser();
     // }, []);
 
+    useEffect(() => {
+        async function fetchToken() {
+            const tok = await getToken();
+            setToken(tok)
+        }
+        fetchToken();
+    }, []);
+
     const openURL = async (url: string) => {
         // Check if the device supports the URL
         const supported = await Linking.canOpenURL(url);
-
+        // router.push("/(pages)/kyc");
         if (supported) {
-            await Linking.openURL(url);
+            await Linking.openURL(`${url}?token=${token}`);
         } else {
             Alert.alert(`Don't know how to open this URL: ${url}`);
         }
@@ -98,12 +108,12 @@ export default function ProfileScreen() {
                     <AccountItem
                         label={user?.kycstatus ? `KYC is done` : `Kyc is Pending`}
                         icon={user?.kycstatus ? <User size={18} color="#4B5563" /> : <User size={18} color="#eb4034" />}
-                        onPress={() => openURL(`https://digitalwealth.in/Auth/KYCPage`)}
+                        onPress={() => openURL(`https://digitalwealth.in/AppAccess/KYCPage`)}
                     />
                     <AccountItem
                         label="Delete Account"
                         icon={<Delete size={18} color="#4B5563" />}
-                        onPress={handleDelete}
+                        onPress={confirmDelete}
                     />
                     <AccountItem
                         label="Log Out"
