@@ -3,6 +3,7 @@ export interface IUser {
   message: string;
   user: IUserDetail;
   token: string;
+  refreshtoken: string;
 }
 
 export interface IUserDetail {
@@ -25,6 +26,7 @@ export interface IUserDetail {
 export interface LoginData {
   contact: string;
   pin: string;
+  deviceId: string;
 }
 
 export interface SignupData {

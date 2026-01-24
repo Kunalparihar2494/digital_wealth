@@ -13,7 +13,6 @@ export default function Order() {
 
     useEffect(() => {
         if (!loading) fetchDashboard();
-        console.log('data-', data)
     }, []);
 
     const inProgressOrders = data?.inProgressOrders ?? [];

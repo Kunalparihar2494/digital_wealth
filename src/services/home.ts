@@ -7,7 +7,6 @@ export const getDashboardDetails = async () => {
   try {
     // NOTE: confirm the endpoint path and case with your backend (e.g. "/Orders" vs "/orders").
     const res = await api.get(`${API_BASE_URL}/RetailDashboard`, {}); // Replace with your endpoint if needed
-    console.log("api data-", res);
     return res.data;
   } catch (error: any) {
     // Log useful error details for debugging in native/Expo logs

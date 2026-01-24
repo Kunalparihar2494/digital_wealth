@@ -38,7 +38,7 @@ export default function AddFund() {
                 custRefNum?: string;
                 message?: string;
             };
-            console.log(res)
+
             if (res.success && res.gatewayPayload && res.custRefNum) {
                 // ✅ Save reference for later verification
                 await AsyncStorage.setItem("lastPaymentRef", res.custRefNum);

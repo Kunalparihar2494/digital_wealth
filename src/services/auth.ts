@@ -9,10 +9,12 @@ import api from "./api";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 const appAccess = API_BASE_URL + `AppAccess`;
 
-export const loginUser = async ({ contact, pin }: LoginData) => {
+export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
+  console.log("deviceid-", deviceId);
+  deviceId = deviceId ?? "test";
   const res = await api.post(
     appAccess +
-      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=test`
+      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`
   );
   return res.data;
 };
@@ -89,3 +91,11 @@ export const ForgotPasswordApi = async (data: IForgotPassword) => {
 
   return res.data;
 };
+
+export async function refreshAccessToken(refreshToken: string) {
+  const res = await api.post("/AppAccess/refresh", {
+    refreshToken,
+  });
+
+  return res.data; // { accessToken }
+}
