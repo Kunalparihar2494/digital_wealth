@@ -8,7 +8,7 @@ import { IUser } from "@/src/model/auth.interface";
 import { loginUser, refreshAccessToken } from "@/src/services/auth";
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
-import { biometricLogin, enableBiometric, isBiometricAvailable } from "@/src/utils/biometric";
+import { biometricLogin } from "@/src/utils/biometric";
 import { getDeviceId } from "@/src/utils/device";
 import { REMEMBER_CONTACT_KEY, REMEMBER_KEY } from '@/src/utils/index';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,19 +28,19 @@ export default function Login() {
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const token = await biometricLogin();
-                if (token) {
-                    await setAuth(token);
-                    router.replace("/(tabs)/home");
-                }
-            } catch {
-                // silently ignore (expected after logout)
-            }
-        })();
-    }, []);
+    // useEffect(() => {
+    //     (async () => {
+    //         try {
+    //             const token = await biometricLogin();
+    //             if (token) {
+    //                 await setAuth(token);
+    //                 router.replace("/(tabs)/home");
+    //             }
+    //         } catch {
+    //             // silently ignore (expected after logout)
+    //         }
+    //     })();
+    // }, []);
 
 
     useEffect(() => {
@@ -68,39 +68,75 @@ export default function Login() {
             const deviceId = await getDeviceId();
             const data: IUser = await loginUser({ contact, pin, deviceId });
 
-            if (data?.token) {
-                await AsyncStorage.setItem("accessToken", data.token);
-                await setAuth(data.token);
-                await setUser(data.user);
-
-                const canUseBiometric = await isBiometricAvailable();
-
-                if (canUseBiometric) {
-                    Alert.alert(
-                        "Enable Biometric Login?",
-                        "Use fingerprint or Face ID for next login",
-                        [
-                            { text: "No" },
-                            {
-                                text: "Yes",
-                                onPress: async () => {
-                                    await enableBiometric(data.refreshtoken);
-                                },
-                            },
-                        ]
-                    );
-                }
-
-                router.replace("/(tabs)/home");
-            } else {
-                Alert.alert("Login Failed", data?.message || "Invalid credentials");
+            if (!data?.token || !data?.refreshtoken) {
+                Alert.alert("Login Failed");
+                return;
             }
-        } catch {
-            Alert.alert("Error", "Something went wrong. Please try again later.");
+
+            // Normal login
+            await AsyncStorage.setItem("accessToken", data.token);
+            await setAuth(data.token);
+            await setUser(data.user);
+
+            // Ask biometric ONLY ONCE
+            // const canUseBiometric = await isBiometricAvailable();
+            // if (canUseBiometric) {
+            //     Alert.alert(
+            //         "Enable Biometric Login?",
+            //         "Use fingerprint for future logins",
+            //         [
+            //             { text: "No" },
+            //             {
+            //                 text: "Yes",
+            //                 onPress: async () => {
+            //                     const enabled = await enableBiometric(data.refreshtoken);
+
+            //                     if (enabled) {
+            //                         await confirmBiometricLogin(data.refreshtoken, deviceId);
+            //                     }
+            //                 },
+            //             },
+            //         ]
+            //     );
+            // }
+
+            router.replace("/(tabs)/home");
+        } catch (e) {
+            Alert.alert("Error", "Something went wrong");
         } finally {
             setLoading(false);
         }
     };
+
+    const handleBiometric = async () => {
+        try {
+            const refreshToken = await biometricLogin();
+            console.log('refreshtoken-', refreshToken)
+            if (!refreshToken) {
+                Alert.alert(
+                    "Biometric Login Not Available",
+                    "Login once using PIN to enable biometric login."
+                );
+                return;
+            }
+
+            const deviceId = await getDeviceId();
+            const res = await refreshAccessToken(refreshToken, deviceId);
+            console.log('res device id -', refreshToken)
+            if (!res?.accessToken) {
+                throw new Error("Invalid refresh response");
+            }
+
+            await AsyncStorage.setItem("accessToken", res.accessToken);
+            await setAuth(res.accessToken);
+            await setUser(res.user);
+
+            router.replace("/(tabs)/home");
+        } catch {
+            Alert.alert("Session expired", "Please login again");
+            router.replace("/(auth)/login");
+        }
+    }
 
 
     if (loading) {
@@ -156,24 +192,11 @@ export default function Login() {
                 <SocialAuthButton
                     icon={<Fingerprint size={20} color="#374151" />}
                     label=""
-                    onPress={async () => {
-                        const refreshToken = await biometricLogin();
-
-                        if (!refreshToken) {
-                            Alert.alert(
-                                "Biometric not enabled",
-                                "Login once using PIN to enable biometrics"
-                            );
-                            return;
-                        }
-
-                        const res = await refreshAccessToken(refreshToken);
-
-                        await AsyncStorage.setItem("accessToken", res.accessToken);
-                        await setAuth(res.accessToken);
-                        router.replace("/(tabs)/home");
+                    onPress={() => {
+                        console.log("🔥 BIOMETRIC BUTTON PRESSED");
                     }}
                 />
+
             </View>
 
             {/* Bottom Text */}

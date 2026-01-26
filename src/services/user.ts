@@ -8,7 +8,7 @@ export const deleteUser = async () => {
     return res.data;
   } catch (error: any) {
     console.error("getShares error:", error?.message || error);
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
     }
 

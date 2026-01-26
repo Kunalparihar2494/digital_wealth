@@ -8,7 +8,7 @@ export const getShares = async () => {
     return res.data;
   } catch (error: any) {
     console.error("getShares error:", error?.message || error);
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
     }
 
@@ -25,7 +25,7 @@ export const buyShares = async (shareId: any, quantity: any) => {
     return res.data;
   } catch (error: any) {
     console.error("buy error:", error?.message || error);
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
     }
 
@@ -40,7 +40,7 @@ export const holdingApi = async () => {
     return res.data;
   } catch (error: any) {
     console.error("holding error:", error?.message || error);
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
     }
 

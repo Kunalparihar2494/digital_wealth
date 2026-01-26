@@ -51,12 +51,10 @@ export const verifyOtp = async (mobile: string, otp: string) => {
 
 export const createAccount = async (payload: any) => {
   const key = process.env.EXPO_PUBLIC_CLIENT_KEY;
-
   const res = await api.post(
     `${API_BASE_URL}AppAccess/CreateAccount?key=${key}`,
     payload
   );
-
   return res.data;
 };
 
@@ -92,10 +90,26 @@ export const ForgotPasswordApi = async (data: IForgotPassword) => {
   return res.data;
 };
 
-export async function refreshAccessToken(refreshToken: string) {
+export async function refreshAccessToken(
+  refreshToken: string,
+  deviceId: string
+) {
   const res = await api.post("/AppAccess/refresh", {
     refreshToken,
+    deviceId,
   });
 
   return res.data; // { accessToken }
 }
+
+export const confirmBiometricLogin = async (
+  refreshToken: string,
+  deviceId: string
+) => {
+  const res = await api.post("/AppAccess/confirm-biometric-login", {
+    refreshToken,
+    deviceId,
+  });
+  console.log("res-", res.data);
+  return res.data;
+};

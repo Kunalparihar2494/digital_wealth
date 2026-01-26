@@ -5,10 +5,11 @@ import { useDashboardStore } from "@/src/store/dashboard.store";
 import { useEffect, useMemo, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
-const TABS = ["Total Orders", "Completed", "In Progress", "Rejected"];
+// const TABS = ["Total Orders", "Completed", "In Progress", "Rejected"];
+const TABS = ["Completed", "In Progress", "Rejected"];
 
 export default function Order() {
-    const [activeTab, setActiveTab] = useState("Total Orders");
+    const [activeTab, setActiveTab] = useState("Completed");
     const { data, loading, fetchDashboard } = useDashboardStore();
 
     useEffect(() => {
@@ -20,18 +21,24 @@ export default function Order() {
     const rejectedOrders = data?.rejectedOrders ?? [];
 
     // 🔹 Combine all orders for "Total Orders"
-    const allOrders = useMemo(
-        () => [...inProgressOrders, ...completedOrders, ...rejectedOrders],
-        [inProgressOrders, completedOrders, rejectedOrders]
-    );
+    // const allOrders = useMemo(
+    //     () => [...inProgressOrders, ...completedOrders, ...rejectedOrders],
+    //     [inProgressOrders, completedOrders, rejectedOrders]
+    // );
 
     // 🔹 Tab counts
+    // const tabCounts = useMemo(() => ({
+    //     "Total Orders": allOrders.length,
+    //     "Completed": completedOrders.length,
+    //     "In Progress": inProgressOrders.length,
+    //     "Rejected": rejectedOrders.length,
+    // }), [allOrders, completedOrders, inProgressOrders, rejectedOrders]);
+
     const tabCounts = useMemo(() => ({
-        "Total Orders": allOrders.length,
         "Completed": completedOrders.length,
         "In Progress": inProgressOrders.length,
         "Rejected": rejectedOrders.length,
-    }), [allOrders, completedOrders, inProgressOrders, rejectedOrders]);
+    }), [completedOrders, inProgressOrders, rejectedOrders]);
 
     // 🔹 Orders to show per tab
     const filteredOrders = useMemo(() => {
@@ -43,20 +50,22 @@ export default function Order() {
             case "Rejected":
                 return rejectedOrders;
             default:
-                return allOrders;
+                return;
         }
-    }, [activeTab, allOrders, completedOrders, inProgressOrders, rejectedOrders]);
+    }, [activeTab, completedOrders, inProgressOrders, rejectedOrders]);
 
     return (
         <View className="flex-1 bg-gray-100">
             <Header />
+            <View className="mb-2">
+                <TabMenu
+                    tabs={TABS}
+                    activeTab={activeTab}
+                    onChange={setActiveTab}
+                    counts={tabCounts}
+                />
+            </View>
 
-            <TabMenu
-                tabs={TABS}
-                activeTab={activeTab}
-                onChange={setActiveTab}
-                counts={tabCounts}
-            />
 
             <FlatList
                 data={filteredOrders}

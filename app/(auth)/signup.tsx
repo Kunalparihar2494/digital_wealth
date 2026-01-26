@@ -92,6 +92,7 @@ export default function Signup() {
                     Contact: mobile,
                     Password: pass1,
                     ConfirmPassword: pass2,
+                    PartnerId: 0,
                     Email: email,
                     Role: 'Retail'
                 };
@@ -221,6 +222,7 @@ export default function Signup() {
                             placeholder="Enter OTP"
                             value={otp}
                             onChangeText={setOtp}
+                            maxLength={6}
                             keyboardType="numeric"
                             icon={<Lock size={18} color="#6B7280" />}
                         />
@@ -241,6 +243,7 @@ export default function Signup() {
                         value={pass1}
                         onChangeText={handlePinChange}
                         keyboardType="numeric"
+                        maxLength={6}
                         secureTextEntry
                         icon={<Lock size={18} color="#6B7280" />}
                     />
@@ -250,6 +253,7 @@ export default function Signup() {
                         value={pass2}
                         onChangeText={handleConfirmPinChange}
                         keyboardType="numeric"
+                        maxLength={6}
                         secureTextEntry
                         icon={<Lock size={18} color="#6B7280" />}
                     />

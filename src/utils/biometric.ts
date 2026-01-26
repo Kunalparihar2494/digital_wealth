@@ -1,8 +1,8 @@
-// src/utils/biometric.ts
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
-import { REFRESH_TOKEN_KEY } from "./tokenKeys";
+
+export const BIOMETRIC_TOKEN_KEY = "biometric_refresh_token";
+export const BIOMETRIC_ENABLED_KEY = "biometric_enabled";
 
 export async function isBiometricAvailable() {
   return (
@@ -11,24 +11,39 @@ export async function isBiometricAvailable() {
   );
 }
 
-export async function enableBiometric(refreshToken: string) {
-  await AsyncStorage.setItem("refreshToken", refreshToken);
+/**
+ * Enable biometric AFTER PIN login
+ */
+export async function enableBiometric(refreshToken: string): Promise<boolean> {
+  const available = await isBiometricAvailable();
+  if (!available) return false;
+
+  const auth = await LocalAuthentication.authenticateAsync({
+    promptMessage: "Confirm biometric login",
+    cancelLabel: "Cancel",
+  });
+
+  if (!auth.success) return false;
+
+  await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY, refreshToken);
+  await SecureStore.setItemAsync(BIOMETRIC_ENABLED_KEY, "true");
+
+  return true;
 }
 
+/**
+ * Called when user taps fingerprint
+ */
 export async function biometricLogin(): Promise<string | null> {
-  const available = await isBiometricAvailable();
-  if (!available) return null;
+  const enabled = await SecureStore.getItemAsync(BIOMETRIC_ENABLED_KEY);
+  if (enabled !== "true") return null;
 
-  const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: "Login using Biometrics",
+  const auth = await LocalAuthentication.authenticateAsync({
+    promptMessage: "Login using biometrics",
     fallbackLabel: "Use PIN",
   });
 
-  if (!result.success) return null;
+  if (!auth.success) return null;
 
-  return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-}
-
-export async function clearBiometric() {
-  await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+  return await SecureStore.getItemAsync(BIOMETRIC_TOKEN_KEY);
 }

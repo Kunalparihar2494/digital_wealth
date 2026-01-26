@@ -21,6 +21,7 @@ export default function AuthScreenLayout({
                     paddingTop: insets.top + 40,
                     paddingBottom: 40,
                     flexGrow: 1,
+                    justifyContent: "center",   // 🔥 REQUIRED
                 }}
                 className="bg-white"
             >
