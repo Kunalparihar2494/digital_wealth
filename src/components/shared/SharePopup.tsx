@@ -12,7 +12,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import BuyConfirmPopup from "../Shares/BuyConfirmPopup";
 
 type SharePopupProps = {
@@ -46,10 +45,10 @@ export default function SharePopup({
         if (!data) fetchBalance();
     }, []);
 
-    const parsePrice = (p: number | string) => {
-        if (typeof p === "number") return p;
-        return parseFloat(String(p).replace(/[^0-9.]/g, "")) || 0;
-    };
+    const parsePrice = (p: number | string) =>
+        typeof p === "number"
+            ? p
+            : parseFloat(String(p).replace(/[^0-9.]/g, "")) || 0;
 
     const price = parsePrice(share?.price ?? 0);
     const totalAmount = price * quantity;
@@ -68,14 +67,11 @@ export default function SharePopup({
         if (!data || totalAmount > data.balance) {
             Alert.alert("Insufficient Balance", "Please recharge your wallet");
             router.replace("/(pages)/wallet");
+            return;
         }
 
         try {
-            const result: ICreateOrder = await buyShares(
-                share!.id,
-                quantity
-            );
-
+            const result: ICreateOrder = await buyShares(share!.id, quantity);
             if (result.success) {
                 Alert.alert("Success", "Share bought successfully");
                 onClose();
@@ -90,79 +86,88 @@ export default function SharePopup({
     if (!share) return null;
 
     return (
-        <SafeAreaProvider>
+        <>
             <Modal
-                className=""
                 transparent
                 visible={visible}
-                animationType="slide"
+                animationType="fade"
                 onRequestClose={onClose}
             >
-                {/* Backdrop */}
+                {/* BACKDROP */}
                 <Pressable
-                    className="flex-1 bg-black/40 justify-end"
                     onPress={onClose}
-                />
-
-                {/* Popup */}
-                <View className="bg-white rounded-t-3xl px-5 py-8 bottom-0">
-                    {/* Header */}
-                    <Text className="text-lg font-semibold text-gray-800 mb-4">
-                        {share.company}
-                    </Text>
-
-                    {/* Price (Read only) */}
-                    <View className="mb-4">
-                        <Text className="text-xs text-gray-500">Price</Text>
-                        <Text className="text-base font-semibold">
-                            ₹ {price}
-                        </Text>
-                    </View>
-
-                    {/* Quantity (Editable) */}
-                    <View className="mb-4">
-                        <Text className="text-xs text-gray-500">
-                            Quantity (Min {share.minQuantity})
-                        </Text>
-                        <TextInput
-                            value={String(quantity)}
-                            keyboardType="numeric"
-                            onChangeText={(val) =>
-                                setQuantity(Number(val.replace(/[^0-9]/g, "")))
-                            }
-                            className="border border-gray-300 rounded-xl px-4 py-2 text-base"
-                        />
-                    </View>
-
-                    {/* Total */}
-                    <View className="flex-row justify-between mb-6">
-                        <Text className="text-gray-500 text-sm">
-                            Total Amount
-                        </Text>
-                        <Text className="text-gray-900 font-semibold">
-                            ₹ {totalAmount.toLocaleString("en-IN")}
-                        </Text>
-                    </View>
-
-                    {/* Buy */}
-                    <TouchableOpacity
-                        onPress={() => setConfirmOpen(true)}
-                        className="bg-emerald-600 py-3 rounded-xl"
-                        activeOpacity={0.85}
+                    style={{
+                        flex: 1,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    {/* STOP PROPAGATION */}
+                    <Pressable
+                        onPress={() => { }}
+                        style={{
+                            width: "90%",
+                            backgroundColor: "#fff",
+                            borderRadius: 20,
+                            padding: 20,
+                            elevation: 10,
+                        }}
                     >
-                        <Text className="text-white text-center font-semibold text-base">
-                            Buy
+                        {/* HEADER */}
+                        <Text className="text-lg font-semibold text-gray-800 mb-4">
+                            {share.company}
                         </Text>
-                    </TouchableOpacity>
 
-                    {/* Close */}
-                    <TouchableOpacity onPress={onClose} className="mt-3">
-                        <Text className="text-center text-gray-500">Close</Text>
-                    </TouchableOpacity>
-                </View>
+                        {/* PRICE */}
+                        <View className="mb-4">
+                            <Text className="text-xs text-gray-500">Price</Text>
+                            <Text className="text-base font-semibold">₹ {price}</Text>
+                        </View>
+
+                        {/* QUANTITY */}
+                        <View className="mb-4">
+                            <Text className="text-xs text-gray-500">
+                                Quantity (Min {share.minQuantity})
+                            </Text>
+                            <TextInput
+                                value={String(quantity)}
+                                keyboardType="numeric"
+                                onChangeText={(val) =>
+                                    setQuantity(Number(val.replace(/[^0-9]/g, "")))
+                                }
+                                className="border border-gray-300 rounded-xl px-4 py-2 text-base"
+                            />
+                        </View>
+
+                        {/* TOTAL */}
+                        <View className="flex-row justify-between mb-6">
+                            <Text className="text-gray-500 text-sm">Total Amount</Text>
+                            <Text className="text-gray-900 font-semibold">
+                                ₹ {totalAmount.toLocaleString("en-IN")}
+                            </Text>
+                        </View>
+
+                        {/* BUY */}
+                        <TouchableOpacity
+                            onPress={() => setConfirmOpen(true)}
+                            className="bg-emerald-600 py-3 rounded-xl"
+                            activeOpacity={0.85}
+                        >
+                            <Text className="text-white text-center font-semibold text-base">
+                                Buy
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* CLOSE */}
+                        <TouchableOpacity onPress={onClose} className="mt-3">
+                            <Text className="text-center text-gray-500">Close</Text>
+                        </TouchableOpacity>
+                    </Pressable>
+                </Pressable>
             </Modal>
 
-            {/* CONFIRMATION */}
+            {/* CONFIRM */}
             <BuyConfirmPopup
                 visible={confirmOpen}
                 company={share.company}
@@ -172,6 +177,6 @@ export default function SharePopup({
                 onClose={() => setConfirmOpen(false)}
                 onConfirm={handleBuy}
             />
-        </SafeAreaProvider>
+        </>
     );
 }

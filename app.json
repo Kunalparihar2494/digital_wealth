@@ -5,7 +5,7 @@
      "owner": "mahendra.dhivare@gmail.com",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/playstore.png",
     "scheme": "digitalwealth",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

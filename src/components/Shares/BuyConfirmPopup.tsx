@@ -79,7 +79,7 @@ export default function BuyConfirmPopup({
                                 onPress={onConfirm}
                             >
                                 <Text className="text-center text-white font-semibold">
-                                    Confirm Buy
+                                    Confirm
                                 </Text>
                             </TouchableOpacity>
                         </View>
