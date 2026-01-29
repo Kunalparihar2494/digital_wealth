@@ -8,7 +8,7 @@ import { useUserStore } from "@/src/store/user.store";
 import { logout } from "@/src/utils/logout";
 import { getToken } from "@/src/utils/storage";
 import { router } from "expo-router";
-import { Delete, LogOut, User, Wallet } from "lucide-react-native";
+import { Contact, Delete, LogOut, User, Wallet } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 
@@ -82,6 +82,15 @@ export default function ProfileScreen() {
         }
     };
 
+    const handleContactUs = () => {
+        try {
+            router.replace('/(pages)/contact')
+
+        } catch (error) {
+
+        }
+    }
+
     return (
         <View className="flex-1 bg-gray-100">
             <Header />
@@ -114,6 +123,11 @@ export default function ProfileScreen() {
                         label="Delete Account"
                         icon={<Delete size={18} color="#4B5563" />}
                         onPress={confirmDelete}
+                    />
+                    <AccountItem
+                        label="Contact Us"
+                        icon={<Contact size={18} color="#4B5563" />}
+                        onPress={handleContactUs}
                     />
                     <AccountItem
                         label="Log Out"
