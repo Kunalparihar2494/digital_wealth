@@ -1,24 +1,23 @@
 {
   "expo": {
     "name": "DigitalWealth",
-    "slug": "digitalwealth",
-     "owner": "mahendra.dhivare@gmail.com",
+    "slug": "DigitalWealth",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/playstore.png",
-    "scheme": "digitalwealth",
+    "icon": "./assets/images/PlayStore.png",
+    "scheme": "DigitalWealth",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.digitalwealth.app",
+      "bundleIdentifier": "com.DigitalWealth.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
   
     "android": {
-      "package": "com.digitalwealth",
+      "package": "com.mahendra.DigitalWealth",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon.png"
