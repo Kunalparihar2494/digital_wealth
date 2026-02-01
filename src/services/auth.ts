@@ -10,11 +10,10 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 const appAccess = API_BASE_URL + `AppAccess`;
 
 export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
-  console.log("deviceid-", deviceId);
   deviceId = deviceId ?? "test";
   const res = await api.post(
     appAccess +
-      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`
+      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`,
   );
   return res.data;
 };
@@ -53,7 +52,7 @@ export const createAccount = async (payload: any) => {
   const key = process.env.EXPO_PUBLIC_CLIENT_KEY;
   const res = await api.post(
     `${API_BASE_URL}AppAccess/CreateAccount?key=${key}`,
-    payload
+    payload,
   );
   return res.data;
 };
@@ -90,26 +89,41 @@ export const ForgotPasswordApi = async (data: IForgotPassword) => {
   return res.data;
 };
 
-export async function refreshAccessToken(
+export async function loginByRefreshToken(
   refreshToken: string,
-  deviceId: string
+  deviceId: string,
+  user: string,
 ) {
+  console.log(refreshAccessToken, " ", deviceId, " ", user);
+
   const res = await api.post("/AppAccess/refresh", {
     refreshToken,
     deviceId,
+    user,
   });
-
   return res.data; // { accessToken }
 }
 
+export const refreshAccessToken = async (
+  refreshToken: string,
+  deviceId: string,
+  username?: string,
+) => {
+  const res = await api.post("/AppAccess/refresh", {
+    refreshToken,
+    deviceId,
+    Contact: username,
+  });
+  return res.data;
+};
+
 export const confirmBiometricLogin = async (
   refreshToken: string,
-  deviceId: string
+  deviceId: string,
 ) => {
   const res = await api.post("/AppAccess/confirm-biometric-login", {
     refreshToken,
     deviceId,
   });
-  console.log("res-", res.data);
   return res.data;
 };

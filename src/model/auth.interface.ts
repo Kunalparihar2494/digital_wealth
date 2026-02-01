@@ -4,6 +4,7 @@ export interface IUser {
   user: IUserDetail;
   token: string;
   refreshtoken: string;
+  isBioMatricEnabled: string;
 }
 
 export interface IUserDetail {

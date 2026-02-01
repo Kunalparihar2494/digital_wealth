@@ -7,8 +7,10 @@ import { useUserStore } from "../store/user.store";
 export const logout = async () => {
   resetAllStores();
 
-  // ❌ DO NOT clear biometric
-  await AsyncStorage.multiRemove(["accessToken", "userData"]);
+  await AsyncStorage.removeItem("accessToken");
+
+  // ❌ DO NOT delete SecureStore
+  // ❌ DO NOT delete biometric user identity
 
   useAuthStore.getState().logout();
   useUserStore.getState().reset();
