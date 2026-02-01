@@ -128,7 +128,9 @@ export default function Login() {
     return (
         <AuthScreenLayout>
             <AuthBrandHeader />
-            <Text className="text-2xl text-center mb-8">Login</Text>
+            <Text className="text-2xl font-semibold text-gray-700 text-center mb-8">
+                Sign in to your Account
+            </Text>
             <AuthInput
                 placeholder="Mobile No."
                 keyboardType="phone-pad"
