@@ -10,6 +10,7 @@ import AuthScreenLayout from "@/src/components/Auth/AuthScreenLayout";
 import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
 import PrimaryButton from "@/src/components/PrimaryButton";
 
+import LegalConsentText from "@/src/components/shared/LegalCOnsentText";
 import { confirmBiometricLogin, loginUser, refreshAccessToken } from "@/src/services/auth";
 import { authenticateBiometric } from "@/src/services/biometricAuth";
 import { useAuthStore } from "@/src/store/auth.store";
@@ -159,6 +160,7 @@ export default function Login() {
             </View>
 
             <AuthBottomText isSignin />
+            <LegalConsentText />
         </AuthScreenLayout>
     );
 }
