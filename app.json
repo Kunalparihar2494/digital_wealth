@@ -18,12 +18,13 @@
   
     "android": {
       "package": "com.mahendra.DigitalWealth",
+      "package": "com.mahendra.DigitalWealth",
+      "minSdkVersion": 24,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
