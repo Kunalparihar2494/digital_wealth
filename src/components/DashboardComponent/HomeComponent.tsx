@@ -8,7 +8,7 @@ import ShareGridCard from "../shared/ShareLongCard";
 import HomeSearchSection from "./HomeSearchSection";
 
 export function HomeComponent({ data }: { data: any }) {
-    const shares = data?.shares ?? [];
+    const shares = data?.Shares ?? [];
 
     const [search, setSearch] = useState("");
 

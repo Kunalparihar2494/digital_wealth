@@ -95,7 +95,7 @@ export default function Login() {
             if (!auth.success) return;
 
             const bio = await getBiometricData();
-            console.log('bio-', bio)
+
             if (!bio) {
                 Alert.alert("Login required", "Use mobile & PIN once");
                 return;
@@ -104,7 +104,6 @@ export default function Login() {
             const data = await refreshAccessToken(
                 bio.refreshToken,
                 bio.deviceId,
-                bio.Contact
             );
 
             await AsyncStorage.setItem("accessToken", data.token);

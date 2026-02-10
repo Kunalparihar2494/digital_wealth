@@ -4,7 +4,9 @@ import api from "./api";
 export const getShares = async () => {
   try {
     // ✅ Only endpoint path — baseURL is already set
-    const res = await api.get("/AppAccess/allshares");
+    const res = await api.get(
+      "/AppAccess/allshares?includeFilters=true&filterId=1",
+    );
     return res.data;
   } catch (error: any) {
     console.error("getShares error:", error?.message || error);

@@ -107,12 +107,10 @@ export async function loginByRefreshToken(
 export const refreshAccessToken = async (
   refreshToken: string,
   deviceId: string,
-  username?: string,
 ) => {
   const res = await api.post("/AppAccess/refresh", {
     refreshToken,
     deviceId,
-    Contact: username,
   });
   return res.data;
 };
