@@ -24,7 +24,7 @@ export default function HoldingsList({
 
     return (
         <View className="mx-4">
-            {data.slice(0, visibleCount).map((item, index) => {
+            {data.map((item, index) => {
                 const isLoss = item.profitLoss;
 
                 return (
@@ -33,12 +33,12 @@ export default function HoldingsList({
                         className="bg-gray-200 rounded-xl p-4 mb-3 flex-row justify-between items-center"
                     >
                         {/* LEFT */}
-                        <View>
-                            <Text className="font-semibold text-gray-900">
+                        <View className="flex-1">
+                            <Text className="font-semibold text-gray-900" numberOfLines={1}>
                                 {item.shareName}
                             </Text>
                             <Text className="text-xs text-gray-500">
-                                Qty: {item.totalQuantity} · Price: {item.currentPrice}
+                                Qty: {item.totalQuantity} · Current Price: {item.currentPrice}
                             </Text>
                         </View>
 
@@ -48,13 +48,13 @@ export default function HoldingsList({
                                 className={`font-semibold ${isLoss < 0 ? "text-red-500" : "text-emerald-600"
                                     }`}
                             >
-                                {item.profitLoss}
+                                ₹{item.profitLoss}
                             </Text>
                             <Text
                                 className={`text-xs ${isLoss < 0 ? "text-red-500" : "text-emerald-600"
                                     }`}
                             >
-                                {item.profitLossPercent}
+                                {item.profitLossPercent}%
                             </Text>
                         </View>
                     </View>
