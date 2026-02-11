@@ -27,7 +27,7 @@ export default function ShareDetail() {
   }, [id]);
 
   const fetchShareDetail = async (id: string) => {
-    const selectedShare: IShareDetail | undefined = data?.shares.find(val => id === (val.id).toLocaleString())
+    const selectedShare: IShareDetail | undefined = data?.Shares.find(val => id === (val.id).toLocaleString())
     setShare(selectedShare)
   };
 

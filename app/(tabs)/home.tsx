@@ -30,7 +30,7 @@ export default function Home() {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingTop: 12, paddingBottom: 120 }}
                 >
-                    <HomeComponent data={data} />
+                    {data && <HomeComponent data={data} />}
                 </ScrollView>
 
 

@@ -1,5 +1,5 @@
 export interface IShare {
-  shares: IShareDetail[];
+  Shares: IShareDetail[];
   orders: any[];
   kycDetails: any;
   userName: string;

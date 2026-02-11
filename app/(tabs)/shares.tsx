@@ -23,7 +23,7 @@ export default function Shares() {
         try {
             setLoading(true);
             const data: IShare = await getShares();
-            setShares(data?.shares ?? []);
+            setShares(data?.Shares ?? []);
         } catch (err) {
             Alert.alert("Error", "Unable to load shares");
         } finally {
