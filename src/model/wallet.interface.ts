@@ -5,7 +5,7 @@ export interface IWallet {
 
 export interface ITopUpData {
   amount: number | string;
-  email: string;
+  email?: string;
 }
 
 export interface ITopUp {

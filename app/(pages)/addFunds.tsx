@@ -27,10 +27,8 @@ export default function AddFund() {
         }
 
         const userData = await AsyncStorage.getItem("userData");
-        const { email } = userData ? JSON.parse(userData) : { email: "" };
-
-        const payload: ITopUpData = { amount, email };
-
+        // const { email } = userData ? JSON.parse(userData) : { email: "" };
+        const payload: ITopUpData = { amount };
         try {
             const res = (await fetchTopUpStatus(payload)) as unknown as {
                 success: boolean;

@@ -1,6 +1,5 @@
 // src/components/Dashboard/HomeComponent.tsx
 import { useHoldingState } from "@/src/store/shares.store";
-import { getProfitLossSummary } from "@/src/utils/portfolio.util";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
@@ -13,8 +12,7 @@ export function HomeComponent({ data }: { data: any }) {
     const [search, setSearch] = useState("");
 
     const { holdingData, holdingLoading, fetchHoldings } = useHoldingState();
-    const summary = getProfitLossSummary(holdingData ?? []);
-
+    // const summary = getProfitLossSummary(holdingData ?? []);
     useEffect(() => {
         if (!holdingLoading) fetchHoldings();
     }, []);
