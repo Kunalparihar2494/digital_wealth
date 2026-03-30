@@ -1,5 +1,4 @@
 import AuthBrandHeader from '@/src/components/Auth/AuthBrandHeader';
-import AuthCard from '@/src/components/Auth/AuthCard';
 import AuthInput from '@/src/components/Auth/AuthInput';
 import AuthScreenLayout from '@/src/components/Auth/AuthScreenLayout';
 import PrimaryButton from '@/src/components/PrimaryButton';
@@ -102,54 +101,51 @@ export default function ForgotPasswordScreen() {
 
     return (
         <AuthScreenLayout>
-            <AuthCard>
-                <AuthBrandHeader />
-                <Text className="text-2xl font-semibold text-center mb-4 text-gray-600">
-                    Forgot Password
-                </Text>
-                <AuthInput
-                    placeholder="Contact"
-                    value={mobile}
-                    onChangeText={setMobile}
-                    keyboardType="phone-pad"
-                    icon={<Phone size={18} color="#6B7280" />}
-                    showOtpButton
-                    otpSent={otpSent}
-                    onSendOtp={handleSendOtp}
-                    timer={timer}
-                />
+            <AuthBrandHeader />
+            <Text className="text-2xl font-semibold text-center mb-4 text-gray-600">
+                Forgot Password
+            </Text>
+            <AuthInput
+                placeholder="Contact"
+                value={mobile}
+                onChangeText={setMobile}
+                keyboardType="phone-pad"
+                icon={<Phone size={18} color="#6B7280" />}
+                showOtpButton
+                otpSent={otpSent}
+                onSendOtp={handleSendOtp}
+                timer={timer}
+            />
 
-                <AuthInput
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChangeText={setOtp}
-                    keyboardType="numeric"
-                    icon={<Lock size={18} color="#6B7280" />}
-                    maxLength={6}
-                />
+            <AuthInput
+                placeholder="Enter OTP"
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="numeric"
+                icon={<Lock size={18} color="#6B7280" />}
+                maxLength={6}
+            />
 
-                <AuthInput
-                    placeholder="Enter New Password"
-                    value={newPass}
-                    onChangeText={setNewPass}
-                    keyboardType="numeric"
-                    icon={<Lock size={18} color="#6B7280" />}
-                    maxLength={6}
-                />
-
+            <AuthInput
+                placeholder="Enter New Password"
+                value={newPass}
+                onChangeText={setNewPass}
+                keyboardType="numeric"
+                icon={<Lock size={18} color="#6B7280" />}
+                maxLength={6}
+            />
 
 
-                <PrimaryButton title="Change Password" onPress={handleChangePassword} />
-                <View className="flex-row justify-center mt-6">
-                    <Text className="text-gray-600 text-sm">Already have an account? </Text>
-                    <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
-                        <Text className="text-emerald-600 text-sm font-semibold">
-                            Sign in
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </AuthCard>
+
+            <PrimaryButton title="Change Password" onPress={handleChangePassword} />
+            <View className="flex-row justify-center mt-6">
+                <Text className="text-gray-600 text-sm">Already have an account? </Text>
+                <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+                    <Text className="text-emerald-600 text-sm font-semibold">
+                        Sign in
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </AuthScreenLayout>
-
     );
 }

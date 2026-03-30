@@ -3,7 +3,7 @@ import Header from "@/src/components/shared/Header";
 import TabMenu from "@/src/components/TabMenu";
 import { useDashboardStore } from "@/src/store/dashboard.store";
 import { useEffect, useMemo, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 
 // const TABS = ["Total Orders", "Completed", "In Progress", "Rejected"];
 const TABS = ["Completed", "In Progress", "Rejected"];
@@ -11,6 +11,7 @@ const TABS = ["Completed", "In Progress", "Rejected"];
 export default function Order() {
     const [activeTab, setActiveTab] = useState("Completed");
     const { data, loading, fetchDashboard } = useDashboardStore();
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         if (!loading) fetchDashboard();
@@ -20,19 +21,17 @@ export default function Order() {
     const completedOrders = data?.completedOrders ?? [];
     const rejectedOrders = data?.rejectedOrders ?? [];
 
-    // 🔹 Combine all orders for "Total Orders"
-    // const allOrders = useMemo(
-    //     () => [...inProgressOrders, ...completedOrders, ...rejectedOrders],
-    //     [inProgressOrders, completedOrders, rejectedOrders]
-    // );
 
-    // 🔹 Tab counts
-    // const tabCounts = useMemo(() => ({
-    //     "Total Orders": allOrders.length,
-    //     "Completed": completedOrders.length,
-    //     "In Progress": inProgressOrders.length,
-    //     "Rejected": rejectedOrders.length,
-    // }), [allOrders, completedOrders, inProgressOrders, rejectedOrders]);
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await fetchDashboard();
+        } catch (error) {
+            console.log("Refresh error:", error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     const tabCounts = useMemo(() => ({
         "Completed": completedOrders.length,
@@ -75,6 +74,14 @@ export default function Order() {
                     paddingHorizontal: 8,
                     paddingBottom: 120,
                 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                        tintColor="#10b981"
+                        title="Refreshing..."
+                    />
+                }
                 ListEmptyComponent={
                     <View className="flex-1 justify-center items-center mt-40">
                         <Text className="text-gray-500">No Orders Found</Text>

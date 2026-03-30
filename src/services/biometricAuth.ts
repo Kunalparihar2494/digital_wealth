@@ -5,12 +5,13 @@ export async function authenticateBiometric() {
   if (!hasHardware) return { success: false, error: "Biometric not supported" };
 
   const enrolled = await LocalAuthentication.isEnrolledAsync();
+  // console.log("enrolled-", enrolled);
   if (!enrolled) return { success: false, error: "No biometrics enrolled" };
 
   const result = await LocalAuthentication.authenticateAsync({
     promptMessage: "Login with biometrics",
     fallbackLabel: "Use PIN",
   });
-
+  // console.log("result - ", result);
   return result;
 }

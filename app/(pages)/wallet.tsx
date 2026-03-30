@@ -6,13 +6,26 @@ import { TransactionItem } from "@/src/components/Wallet/TransactionItem";
 import { usePaymentStatusCheck, useTransactionStore, useWalletStore } from "@/src/store/wallet.store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect } from "react";
-import { Alert, FlatList, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, FlatList, RefreshControl, Text, View } from "react-native";
 
 export default function Wallet() {
     const { data, fetchBalance } = useWalletStore();
     const { transactionData, fetchTransactions } = useTransactionStore();
     const { fetchPaymentStatus } = usePaymentStatusCheck();
+    const [refreshing, setRefreshing] = useState(false);
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await fetchBalance();
+            await fetchTransactions();
+        } catch (error) {
+            console.log("Refresh error:", error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -24,7 +37,7 @@ export default function Wallet() {
                     const res = (await fetchPaymentStatus(ref)) as unknown as {
                         status: "Success" | "Failed" | "Pending";
                     };
-
+                    // console.log('wallet page-', res)
                     if (res.status === "Success") {
                         Alert.alert("Success", "Funds added successfully");
                         await fetchBalance();
@@ -50,23 +63,6 @@ export default function Wallet() {
     }, []);
 
 
-    const funds = {
-        availableMargin: 0.9,
-        availableCash: 0.9,
-        usedMargin: 0,
-        breakdown: [
-            { label: "Opening balance", value: data?.balance },
-            { label: "Payin", value: 0 },
-            { label: "Payout", value: 0 },
-            { label: "SPAN", value: 0 },
-            { label: "Delivery margin", value: 0 },
-            { label: "Exposure", value: 0 },
-            { label: "Option premium", value: 0 },
-            { label: "Collateral (Liquid funds)", value: 0 },
-            { label: "Collateral (Equity)", value: 0 },
-        ],
-    };
-
     return (
         <View className="flex-1 bg-gray-100">
             <Header showBackButton={true} showWallet={false} />
@@ -74,6 +70,15 @@ export default function Wallet() {
             <FlatList
                 data={transactionData?.transactions ?? []}
                 keyExtractor={(item) => item.id.toString()}
+
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                        tintColor="#10b981"
+                        title="Refreshing..."
+                    />
+                }
 
                 renderItem={({ item }) => (
                     <TransactionItem

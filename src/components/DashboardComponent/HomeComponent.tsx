@@ -1,7 +1,6 @@
 // src/components/Dashboard/HomeComponent.tsx
-import { useHoldingState } from "@/src/store/shares.store";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
 import ShareGridCard from "../shared/ShareLongCard";
 import HomeSearchSection from "./HomeSearchSection";
@@ -11,11 +10,6 @@ export function HomeComponent({ data }: { data: any }) {
 
     const [search, setSearch] = useState("");
 
-    const { holdingData, holdingLoading, fetchHoldings } = useHoldingState();
-    // const summary = getProfitLossSummary(holdingData ?? []);
-    useEffect(() => {
-        if (!holdingLoading) fetchHoldings();
-    }, []);
 
     // 🔹 FILTER LOGIC
     const filteredShares = useMemo(() => {

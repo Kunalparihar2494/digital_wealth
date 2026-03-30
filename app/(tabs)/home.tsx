@@ -1,15 +1,27 @@
 import { HomeComponent } from "@/src/components/DashboardComponent/HomeComponent";
 import Header from "@/src/components/shared/Header";
 import { useShareStore } from "@/src/store/shares.store";
-import React, { useEffect } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, RefreshControl, ScrollView, View } from "react-native";
 
 export default function Home() {
     const { data, loading, fetchShares } = useShareStore();
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         if (!data) fetchShares();
     }, [])
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await fetchShares();
+        } catch (error) {
+            console.log("Refresh error:", error);
+        } finally {
+            setRefreshing(false);
+        }
+    };
 
 
     if (loading) {
@@ -29,6 +41,14 @@ export default function Home() {
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingTop: 12, paddingBottom: 120 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            tintColor="#10b981"
+                            title="Refreshing..."
+                        />
+                    }
                 >
                     {data && <HomeComponent data={data} />}
                 </ScrollView>

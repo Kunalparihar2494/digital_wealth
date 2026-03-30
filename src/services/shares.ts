@@ -3,20 +3,20 @@ import api from "./api";
 
 export const getShares = async () => {
   try {
-    // ✅ Only endpoint path — baseURL is already set
-    // const res = await api.get(
-    //   "/AppAccess/allshares?includeFilters=true&filterId=1",
-    // );
     const res = await api.get("/AppAccess/allshares?includeFilters=false");
-
+    // console.log("res share home page - ", res?.config?.data);
+    // if (!res?.config?.data) router.replace("/(auth)/login");
     return res.data;
   } catch (error: any) {
     console.error("getShares error:", error?.message || error);
     if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
+    } else if (!error.response) {
+      console.error("Network error or no response from server");
+      router.replace("/(auth)/login");
     }
 
-    throw error; // ❌ do NOT redirect here
+    throw error;
   }
 };
 
@@ -31,9 +31,11 @@ export const buyShares = async (shareId: any, quantity: any) => {
     console.error("buy error:", error?.message || error);
     if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
+    } else if (!error.response) {
+      console.error("Network error or no response from server");
     }
 
-    throw error; // ❌ do NOT redirect here
+    throw error;
   }
 };
 
@@ -46,8 +48,10 @@ export const holdingApi = async () => {
     console.error("holding error:", error?.message || error);
     if (error.response?.status === 401 || error.response?.status === 400) {
       router.replace("/(auth)/login");
+    } else if (!error.response) {
+      console.error("Network error or no response from server");
     }
 
-    throw error; // ❌ do NOT redirect here
+    throw error;
   }
 };

@@ -2,10 +2,10 @@ import Header from "@/src/components/shared/Header";
 import { ITopUpData } from "@/src/model/wallet.interface";
 import { useWalletStore, useWalletTopUpStatus } from "@/src/store/wallet.store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
     Alert,
-    Linking,
     ScrollView,
     Text,
     TextInput,
@@ -13,22 +13,28 @@ import {
     View
 } from "react-native";
 
-const PAYMENT_URL = "https://digitalwealth.in/Auth/Home";
-
 export default function AddFund() {
     const { fetchTopUpStatus } = useWalletTopUpStatus();
     const { data } = useWalletStore();
     const [amount, setAmount] = useState("");
+    const [email, setEmail] = useState("");
 
     const handleAddFunds = async () => {
         if (!amount || Number(amount) <= 0) {
             Alert.alert("Invalid Amount", "Please enter a valid amount");
             return;
         }
-
         const userData = await AsyncStorage.getItem("userData");
-        // const { email } = userData ? JSON.parse(userData) : { email: "" };
-        const payload: ITopUpData = { amount };
+        const parsedData = userData ? JSON.parse(userData) : {};
+        const savedEmail = parsedData?.email || "";
+
+        const finalEmail = savedEmail || email;
+
+        const payload: ITopUpData = {
+            amount,
+            email: finalEmail,
+        };
+
         try {
             const res = (await fetchTopUpStatus(payload)) as unknown as {
                 success: boolean;
@@ -42,7 +48,12 @@ export default function AddFund() {
                 await AsyncStorage.setItem("lastPaymentRef", res.custRefNum);
 
                 // ✅ Open Easebuzz payment page
-                Linking.openURL(res.gatewayPayload);
+                // Linking.openURL(res.gatewayPayload);
+                router.push({
+                    pathname: "/(pages)/paymentPage",
+                    params: { gatewayPayload: res.gatewayPayload }
+                });
+
             }
             else if (!res.success && res.message) {
                 Alert.alert("Error", res?.message);
@@ -65,6 +76,12 @@ export default function AddFund() {
             Alert.alert("Error", "Payment initiation failed");
         }
     }
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    const isAddFundDisabled =
+        !amount.trim() ||
+        Number(amount) <= 0 ||
+        !isValidEmail;
 
     return (
         <View className="flex-1 bg-gray-100">
@@ -92,6 +109,16 @@ export default function AddFund() {
                             className="text-lg font-semibold text-gray-900"
                         />
                     </View>
+                    <View className="border border-gray-300 rounded-xl px-4 py-3 mb-4 bg-gray-50">
+                        <Text className="text-xs text-gray-500 mb-1">Email Address</Text>
+                        <TextInput
+                            placeholder="Enter Email Address"
+                            keyboardType="email-address"
+                            value={email}
+                            onChangeText={setEmail}
+                            className="text-lg font-semibold text-gray-900"
+                        />
+                    </View>
 
                     {/* Quick Amount Buttons */}
                     <View className="flex-row justify-between mb-6">
@@ -111,7 +138,11 @@ export default function AddFund() {
                         <TouchableOpacity
                             onPress={handleAddFunds}
                             activeOpacity={0.85}
-                            className="bg-emerald-600 py-4 rounded-xl"
+                            disabled={isAddFundDisabled}
+                            className={`py-4 rounded-xl ${isAddFundDisabled ? "bg-gray-400" : "bg-emerald-600"
+                                }`}
+
+
                         >
                             <Text className="text-white text-center text-base font-semibold">
                                 Add Funds

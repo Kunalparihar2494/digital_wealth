@@ -11,11 +11,15 @@ const appAccess = API_BASE_URL + `AppAccess`;
 
 export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
   deviceId = deviceId ?? "test";
-  const res = await api.post(
+  const url =
     appAccess +
-      `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`,
-  );
-  return res.data;
+    `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`;
+  try {
+    const res = await api.post(url);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const signupUser = async (data: SignupData) => {
@@ -28,8 +32,8 @@ export const sendOtp = async (data: string) => {
     contact: data,
     key: process.env.EXPO_PUBLIC_CLIENT_KEY,
   };
-
-  const res = await api.post(`${API_BASE_URL}OTP/GenerateNewUserOTP`, obj, {
+  const newOtpUrl = `${API_BASE_URL}OTP/GenerateNewUserOTP`;
+  const res = await api.post(newOtpUrl, obj, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -88,21 +92,6 @@ export const ForgotPasswordApi = async (data: IForgotPassword) => {
 
   return res.data;
 };
-
-export async function loginByRefreshToken(
-  refreshToken: string,
-  deviceId: string,
-  user: string,
-) {
-  console.log(refreshAccessToken, " ", deviceId, " ", user);
-
-  const res = await api.post("/AppAccess/refresh", {
-    refreshToken,
-    deviceId,
-    user,
-  });
-  return res.data; // { accessToken }
-}
 
 export const refreshAccessToken = async (
   refreshToken: string,

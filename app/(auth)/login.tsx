@@ -148,6 +148,13 @@ export default function Login() {
                 maxLength={6}
             />
 
+            <Text
+                className="text-right text-blue-600 mt-2 mb-4"
+                onPress={() => router.push("/(auth)/forgotPassword")}
+            >
+                Forgot Password?
+            </Text>
+
             <PrimaryButton title="Sign In" onPress={handleLogin} />
 
             <View className="flex-row justify-center mt-6">
