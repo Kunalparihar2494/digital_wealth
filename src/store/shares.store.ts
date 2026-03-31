@@ -6,7 +6,7 @@ import { registerReset } from "./reset";
 type SharesState = {
   data?: IShare;
   loading: boolean;
-  fetchShares: () => Promise<void>;
+  fetchShares: (filterId?: number) => Promise<void>;
 };
 
 type HoldingState = {
@@ -19,10 +19,10 @@ export const useShareStore = create<SharesState>((set) => ({
   data: undefined,
   loading: false,
 
-  fetchShares: async () => {
+  fetchShares: async (filterId?: number) => {
     set({ loading: true });
     try {
-      const data = await getShares();
+      const data = await getShares(filterId);
       set({ data });
     } finally {
       set({ loading: false });

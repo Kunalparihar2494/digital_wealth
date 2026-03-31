@@ -1,4 +1,5 @@
 // src/components/Dashboard/HomeComponent.tsx
+import { useShareStore } from "@/src/store/shares.store";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
@@ -7,9 +8,20 @@ import HomeSearchSection from "./HomeSearchSection";
 
 export function HomeComponent({ data }: { data: any }) {
     const shares = data?.Shares ?? [];
+    const { fetchShares } = useShareStore();
+
+    const filterValue = useMemo(() => {
+        const apiFilters = data?.Filters ?? [];
+
+        const hasAll = apiFilters.some((f: any) => f.id === 0);
+
+        return hasAll
+            ? apiFilters
+            : [{ id: 0, filterName: "All" }, ...apiFilters];
+    }, [data]);
 
     const [search, setSearch] = useState("");
-
+    const [selectedFilterId, setSelectedFilterId] = useState(0);
 
     // 🔹 FILTER LOGIC
     const filteredShares = useMemo(() => {
@@ -23,6 +35,11 @@ export function HomeComponent({ data }: { data: any }) {
             item.sector?.toLowerCase().includes(text)
         );
     }, [search, shares]);
+
+    const handleFilterChange = async (filterId: number) => {
+        setSelectedFilterId(filterId);
+        await fetchShares(filterId);
+    };
 
     return (
         <ScrollView
@@ -42,6 +59,9 @@ export function HomeComponent({ data }: { data: any }) {
             <HomeSearchSection
                 value={search}
                 onChangeText={setSearch}
+                selectedFilter={selectedFilterId}
+                onFilterChange={handleFilterChange}
+                filterValue={filterValue}
             />
 
             <View className="">
