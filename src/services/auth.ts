@@ -97,7 +97,8 @@ export const refreshAccessToken = async (
   refreshToken: string,
   deviceId: string,
 ) => {
-  const res = await api.post("/AppAccess/refresh", {
+  const refreshUrl = `${appAccess}/refresh`;
+  const res = await api.post(refreshUrl, {
     refreshToken,
     deviceId,
   });
