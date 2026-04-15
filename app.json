@@ -2,12 +2,13 @@
   "expo": {
     "name": "DigitalWealth",
     "slug": "DigitalWealth",
-    "version": "1.0.0",
+    "version": "4.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/PlayStore.png",
     "scheme": "DigitalWealth",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.DigitalWealth.app",
@@ -15,11 +16,13 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-  
+
     "android": {
-      "package": "com.mahendra.DigitalWealth",
-      "package": "com.mahendra.DigitalWealth",
+      "package": "com.digitalwealth.app",
+      "versionCode": 6,
       "minSdkVersion": 24,
+      "permissions": ["INTERNET"],
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon.png"
@@ -27,9 +30,11 @@
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize"
     },
+
     "web": {
       "output": "static"
     },
+
     "plugins": [
       "expo-router",
       [
@@ -47,10 +52,12 @@
       "expo-web-browser",
       "expo-secure-store"
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
     },
+
     "extra": {
       "router": {},
       "eas": {
