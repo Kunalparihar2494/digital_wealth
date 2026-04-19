@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DigitalWealth",
-    "slug": "DigitalWealth",
+    "slug": "digital_wealth",
     "version": "4.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/PlayStore.png",

@@ -143,7 +143,7 @@ export default function Signup() {
                 error?.message ||
                 "OTP sending failed.";
 
-            Alert.alert("Info", msg);
+            Alert.alert("Signup Error", msg);
 
             // If backend still returned useful message, enable OTP timer
             if (error?.response?.data?.message?.includes("Successfully")) {

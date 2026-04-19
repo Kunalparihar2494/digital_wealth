@@ -79,8 +79,17 @@ export default function Login() {
             }
 
             router.replace("/(tabs)/home");
-        } catch {
-            Alert.alert("Login failed");
+        } catch (error: any) {
+            console.log("Login API error:", error?.response?.data);
+
+            // backend is sending success message inside 500 error
+            const msg =
+                error?.response?.data?.message ||
+                error?.message ||
+                "OTP sending failed.";
+
+            Alert.alert("Login Error", msg);
+
         } finally {
             setLoading(false);
         }
