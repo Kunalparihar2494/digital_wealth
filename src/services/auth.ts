@@ -14,12 +14,12 @@ export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
   const url =
     appAccess +
     `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`;
-  try {
-    const res = await api.post(url);
-    return res.data;
-  } catch (error) {
-    console.log(error);
+
+  const res = await api.post(url);
+  if (!res?.data) {
+    throw new Error("Login failed: no response data received.");
   }
+  return res.data;
 };
 
 export const signupUser = async (data: SignupData) => {
@@ -102,6 +102,9 @@ export const refreshAccessToken = async (
     refreshToken,
     deviceId,
   });
+  if (!res?.data) {
+    throw new Error("Token refresh failed: no response data received.");
+  }
   return res.data;
 };
 

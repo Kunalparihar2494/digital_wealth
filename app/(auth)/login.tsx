@@ -41,8 +41,12 @@ export default function Login() {
             const deviceId = await getDeviceId();
             const data = await loginUser({ contact, pin, deviceId });
 
+            if (!data?.token) {
+                throw new Error("Login failed: missing auth token.");
+            }
+
             await AsyncStorage.setItem("accessToken", data.token);
-            setAuth(data.token);
+            await setAuth(data.token);
             setUser(data.user);
 
             await saveBiometricData({
@@ -115,8 +119,12 @@ export default function Login() {
                 bio.deviceId,
             );
 
+            if (!data?.token) {
+                throw new Error("Biometric login failed: missing auth token.");
+            }
+
             await AsyncStorage.setItem("accessToken", data.token);
-            setAuth(data.token);
+            await setAuth(data.token);
             setUser(data.user);
 
             router.replace("/(tabs)/home");
