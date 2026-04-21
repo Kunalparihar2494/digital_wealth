@@ -3,9 +3,10 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://digitalwealth.in/",
-  timeout: 15000,
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36",
   },
 });
 

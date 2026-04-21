@@ -84,13 +84,16 @@ export default function Login() {
 
             router.replace("/(tabs)/home");
         } catch (error: any) {
-            console.log("Login API error:", error?.response?.data);
+            console.log("Login API error:", error);
 
-            // backend is sending success message inside 500 error
-            const msg =
-                error?.response?.data?.message ||
-                error?.message ||
-                "OTP sending failed.";
+            let msg = "An unexpected error occurred.";
+            if (error?.message === "Network Error") {
+                msg = "Network error. Please check your internet connection and try again.";
+            } else if (error?.response?.data?.message) {
+                msg = error.response.data.message;
+            } else if (error?.message) {
+                msg = error.message;
+            }
 
             Alert.alert("Login Error", msg);
 
