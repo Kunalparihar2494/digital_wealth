@@ -14,7 +14,7 @@ export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
   const url =
     appAccess +
     `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`;
-
+  console.log("Login Url: ", url);
   const res = await api.post(url);
   if (!res?.data) {
     throw new Error("Login failed: no response data received.");
