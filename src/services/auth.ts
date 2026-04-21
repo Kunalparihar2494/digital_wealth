@@ -11,11 +11,17 @@ const appAccess = API_BASE_URL + `AppAccess`;
 
 export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
   deviceId = deviceId ?? "test";
-  const url =
-    appAccess +
-    `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`;
-  console.log("Login Url: ", url);
-  const res = await api.post(url);
+  // const url =
+  //   appAccess +
+  //   `/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`;
+  // console.log("Login Url: ", url);
+  // const res = await api.post(url);
+
+  const res = await api.post(`${appAccess}/Applogin`, {
+    MobileNumber: contact,
+    password: pin,
+    DeviceId: deviceId,
+  });
   if (!res?.data) {
     throw new Error("Login failed: no response data received.");
   }
