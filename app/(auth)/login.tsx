@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Text, View } from "react-native";
@@ -33,6 +34,15 @@ export default function Login() {
     const handleLogin = async () => {
         if (!contact || !pin) {
             Alert.alert("Error", "Enter mobile & PIN");
+            return;
+        }
+
+        const netState = await NetInfo.fetch();
+        if (!netState.isConnected) {
+            Alert.alert(
+                "No Connection",
+                "Please check your internet connection and try again."
+            );
             return;
         }
 

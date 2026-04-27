@@ -21,7 +21,7 @@
       "package": "com.digitalwealth.app",
       "versionCode": 6,
       "minSdkVersion": 24,
-      "permissions": ["INTERNET"],
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
