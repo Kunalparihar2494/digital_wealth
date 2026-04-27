@@ -6,11 +6,13 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 export const getShares = async (filterId = 0) => {
   const id = filterId;
   const isFilter = true;
-  const shareUrl =
-    API_BASE_URL +
-    `AppAccess/allshares?includeFilters=${isFilter}&filterId=${id}`;
+  // const shareUrl =
+  //   API_BASE_URL +
+  //   `AppAccess/allshares?includeFilters=${isFilter}&filterId=${id}`;
   try {
-    const res = await api.get(shareUrl);
+    const res = await api.get(
+      `/AppAccess/allshares?includeFilters=${isFilter}&filterId=${id}`,
+    );
     const responseData = res?.data;
 
     // ✅ Detect webpage / login HTML response

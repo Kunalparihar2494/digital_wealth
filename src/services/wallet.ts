@@ -6,10 +6,10 @@ import api from "./api";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL + `AppAccess`;
 
 export const getWalletBalance = async () => {
-  const fetchBalanceUrl = API_BASE_URL + `/balance`;
+  // const fetchBalanceUrl = API_BASE_URL + `/balance`;
   try {
     // NOTE: confirm the endpoint path and case with your backend (e.g. "/Orders" vs "/orders").
-    const res = await api.get(fetchBalanceUrl); // Replace with your endpoint if needed
+    const res = await api.get(`/AppAccess/balance`); // Replace with your endpoint if needed
     return res.data;
   } catch (error: any) {
     // Log useful error details for debugging in native/Expo logs
@@ -24,7 +24,7 @@ export const getWalletBalance = async () => {
 export const topUpBalance = async (data: ITopUpData) => {
   try {
     // NOTE: confirm the endpoint path and case with your backend (e.g. "/Orders" vs "/orders").
-    const res = await api.post(API_BASE_URL + `/topup`, data); // Replace with your endpoint if needed
+    const res = await api.post(`/AppAccess/topup`, data); // Replace with your endpoint if needed
     return res;
   } catch (error: any) {
     // Log useful error details for debugging in native/Expo logs
