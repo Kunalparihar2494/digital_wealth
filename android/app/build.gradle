@@ -29,9 +29,9 @@ android {
     defaultConfig {
         applicationId 'com.digitalwealth.app'
         minSdkVersion 24
-        targetSdkVersion 34 // Updated for Play Store
-        versionCode 7       // Increment for Play Store
-        versionName "4.0.3"
+        targetSdkVersion 35 // Updated for Play Store
+        versionCode 8       // Increment for Play Store
+        versionName "4.0.4"
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
     
