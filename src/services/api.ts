@@ -1,54 +1,70 @@
+// src/services/api.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Sabse bada fix: Agar https fail ho, toh http par switch karo
-const baseURL_SSL = "https://digitalwealth.in";
-const baseURL_NON_SSL = "http://digitalwealth.in";
+const BASE_URL = "https://digitalwealth.in";
 
 const api = {
-  post: async (endpoint, body) => {
-    const token = await AsyncStorage.getItem("accessToken");
-    
-    // Pehle HTTPS try karein
-    let finalUrl = endpoint.startsWith('http') ? endpoint : `${baseURL_SSL}${endpoint}`;
-    
+  post: async (endpoint: string, body: any) => {
+    const controller = new AbortController();
+    // Purane phones slow hote hain, isliye timeout 30 seconds rakha hai
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
-      console.log("🚀 Trying Secure Connection:", finalUrl);
-      const response = await fetch(finalUrl, {
-        method: 'POST',
+      const token = await AsyncStorage.getItem("accessToken");
+
+      const url = endpoint.startsWith("http")
+        ? endpoint
+        : `${BASE_URL}${endpoint}`;
+
+      console.log("Calling API:", url);
+
+      const response = await fetch(url, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          // 🔥 FIX: Purane Android versions ke liye connection aur cache settings
+          "Connection": "close",
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+          "Expires": "0",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(body),
+        body: body ? JSON.stringify(body) : JSON.stringify({}), 
+        signal: controller.signal,
       });
 
-      const data = await response.json();
-      return { data, status: response.status };
+      clearTimeout(timeoutId);
 
-    } catch (error) {
-      // 🔥 AGAR FAIL HUA (Kuch phones ke liye), TOH HTTP PAR TRY KAREIN
-      console.log("⚠️ SSL Failed, Falling back to HTTP...");
-      const fallbackUrl = finalUrl.replace("https://", "http://");
+      // 🔥 FIX FOR OLD PHONES: Safe Parsing
+      // Purane Webview mein response.json() aksar crash hota hai
+      const responseText = await response.text();
+      let parsedData;
       
       try {
-        const response = await fetch(fallbackUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify(body),
-        });
-        const data = await response.json();
-        return { data, status: response.status };
-      } catch (fallbackError) {
-        console.log("❌ Both HTTPS and HTTP Failed.");
-        throw fallbackError;
+        parsedData = responseText ? JSON.parse(responseText) : {};
+        console.log("API SUCCESS DATA:", parsedData);
+      } catch (e) {
+        console.log("API PARSE ERROR. RAW TEXT:", responseText);
+        parsedData = { message: responseText }; 
       }
+
+      return {
+        data: parsedData,
+        status: response.status,
+      };
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        console.log("API ERROR: Request Timeout");
+      } else {
+        console.log("FULL API ERROR:", JSON.stringify(error, null, 2));
+      }
+      
+      throw error;
     }
-  }
+  },
 };
 
 export default api;

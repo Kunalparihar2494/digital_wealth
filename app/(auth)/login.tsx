@@ -11,10 +11,10 @@ import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
 import PrimaryButton from "@/src/components/PrimaryButton";
 
 import LegalConsentText from "@/src/components/shared/LegalCOnsentText";
-import { confirmBiometricLogin, loginUser, refreshAccessToken } from "@/src/services/auth";
+import { confirmBiometricLogin, loginUser } from "@/src/services/auth";
 import { authenticateBiometric } from "@/src/services/biometricAuth";
 import { useAuthStore } from "@/src/store/auth.store";
-import { getBiometricData, saveBiometricData } from "@/src/store/biometric.store";
+import { saveBiometricData } from "@/src/store/biometric.store";
 import { useUserStore } from "@/src/store/user.store";
 import { getDeviceId } from "@/src/utils/device";
 import { Fingerprint } from "lucide-react-native";
@@ -27,9 +27,6 @@ export default function Login() {
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
 
-    /* =======================
-       NORMAL LOGIN
-    ======================= */
     const handleLogin = async () => {
         if (!contact || !pin) {
             Alert.alert("Error", "Enter mobile & PIN");
@@ -42,11 +39,12 @@ export default function Login() {
             const data = await loginUser({ contact, pin, deviceId });
 
             if (!data?.token) {
-                throw new Error("Login failed: missing auth token.");
+                throw new Error(data?.message || "Login failed: missing auth token.");
             }
 
+            // 🔥 FIX FOR OLD PHONES: Update state BEFORE navigation
             await AsyncStorage.setItem("accessToken", data.token);
-            await setAuth(data.token);
+            setAuth(data.token); 
             setUser(data.user);
 
             await saveBiometricData({
@@ -55,92 +53,50 @@ export default function Login() {
                 deviceId,
             });
 
+            // Biometric Check
             if (data.isBioMatricEnabled === "NOT_ENABLED") {
                 Alert.alert(
                     "Enable Biometric?",
                     "Use fingerprint for next login",
                     [
-                        { text: "No" },
+                        { 
+                            text: "No", 
+                            onPress: () => {
+                                // Delay added to ensure state is committed
+                                setTimeout(() => router.replace("/(tabs)/home"), 300);
+                            }
+                        },
                         {
                             text: "Yes",
                             onPress: async () => {
                                 const auth = await authenticateBiometric();
-                                if (!auth.success) return;
-
-                                await confirmBiometricLogin(data.refreshtoken, deviceId);
-
-                                await saveBiometricData({
-                                    refreshToken: data.refreshtoken,
-                                    username: data.user.username,
-                                    deviceId,
-                                });
-
-                                Alert.alert("Success", "Biometric enabled");
+                                if (auth.success) {
+                                    await confirmBiometricLogin(data.refreshtoken, deviceId);
+                                }
+                                setTimeout(() => router.replace("/(tabs)/home"), 300);
                             },
                         },
                     ]
                 );
+            } else {
+                // If biometric already enabled, direct jump with delay
+                setTimeout(() => router.replace("/(tabs)/home"), 300);
             }
 
-            router.replace("/(tabs)/home");
         } catch (error: any) {
             console.log("Login API error:", error);
-
-            let msg = "An unexpected error occurred.";
-            if (error?.message === "Network Error") {
-                msg = "Network error. Please check your internet connection and try again.";
-            } else if (error?.response?.data?.message) {
-                msg = error.response.data.message;
-            } else if (error?.message) {
-                msg = error.message;
-            }
-
-            Alert.alert("Login Error", msg);
-
+            let msg = error?.response?.data?.message || error?.message || "Invalid Credentials";
+            Alert.alert("Login Info", msg);
         } finally {
             setLoading(false);
-        }
-    };
-
-    /* =======================
-       BIOMETRIC LOGIN
-    ======================= */
-    const handleBiometric = async () => {
-        try {
-            const auth = await authenticateBiometric();
-            if (!auth.success) return;
-
-            const bio = await getBiometricData();
-
-            if (!bio) {
-                Alert.alert("Login required", "Use mobile & PIN once");
-                return;
-            }
-
-            const data = await refreshAccessToken(
-                bio.refreshToken,
-                bio.deviceId,
-            );
-
-            if (!data?.token) {
-                throw new Error("Biometric login failed: missing auth token.");
-            }
-
-            await AsyncStorage.setItem("accessToken", data.token);
-            await setAuth(data.token);
-            setUser(data.user);
-
-            router.replace("/(tabs)/home");
-        } catch {
-            Alert.alert("Session expired", "Please login again");
-            router.replace("/(auth)/login");
         }
     };
 
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" />
+                <ActivityIndicator size="large" color="#10b981" />
+                <Text className="mt-4 text-gray-500">Signing in...</Text>
             </View>
         );
     }
@@ -179,9 +135,9 @@ export default function Login() {
 
             <View className="flex-row justify-center mt-6">
                 <SocialAuthButton
-                    icon={<Fingerprint size={22} />}
+                    icon={<Fingerprint size={22} color="#10b981" />}
                     label=""
-                    onPress={handleBiometric}
+                    onPress={() => Alert.alert("Biometric", "Please login with PIN first to enable this.")}
                 />
             </View>
 
