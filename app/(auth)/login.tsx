@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { router } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Alert, Text, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Alert, InteractionManager, Text, View } from "react-native";
 
 import AuthBottomText from "@/src/components/Auth/AuthBottomText";
 import AuthBrandHeader from "@/src/components/Auth/AuthBrandHeader";
@@ -20,10 +20,16 @@ import { useUserStore } from "@/src/store/user.store";
 import { getDeviceId } from "@/src/utils/device";
 import { Fingerprint } from "lucide-react-native";
 
+
 export default function Login() {
     const [contact, setContact] = useState("");
     const [pin, setPin] = useState("");
     const [loading, setLoading] = useState(false);
+    const navigateToHome = () => {
+        InteractionManager.runAfterInteractions(() => {
+            router.replace("/(tabs)/home");
+        });
+    };
 
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
@@ -54,7 +60,7 @@ export default function Login() {
 
             // 🔥 FIX FOR OLD PHONES: Update state BEFORE navigation
             await AsyncStorage.setItem("accessToken", data.token);
-            setAuth(data.token); 
+            setAuth(data.token);
             setUser(data.user);
 
             await saveBiometricData({
@@ -69,11 +75,12 @@ export default function Login() {
                     "Enable Biometric?",
                     "Use fingerprint for next login",
                     [
-                        { 
-                            text: "No", 
+                        {
+                            text: "No",
                             onPress: () => {
                                 // Delay added to ensure state is committed
-                                setTimeout(() => router.replace("/(tabs)/home"), 300);
+                                // setTimeout(() => router.replace("/(tabs)/home"), 300);
+                                navigateToHome();
                             }
                         },
                         {
@@ -83,18 +90,20 @@ export default function Login() {
                                 if (auth.success) {
                                     await confirmBiometricLogin(data.refreshtoken, deviceId);
                                 }
-                                setTimeout(() => router.replace("/(tabs)/home"), 300);
+                                // setTimeout(() => router.replace("/(tabs)/home"), 300);
+                                navigateToHome();
                             },
                         },
                     ]
                 );
             } else {
                 // If biometric already enabled, direct jump with delay
-                setTimeout(() => router.replace("/(tabs)/home"), 300);
+                // setTimeout(() => router.replace("/(tabs)/home"), 300);
+                navigateToHome();
             }
 
         } catch (error: any) {
-            console.log("Login API error:", error);
+            // console.log("Login API error:", error);
             let msg = error?.response?.data?.message || error?.message || "Invalid Credentials";
             Alert.alert("Login Info", msg);
         } finally {

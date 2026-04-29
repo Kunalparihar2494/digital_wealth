@@ -46,6 +46,10 @@ export const buyShares = async (shareId: any, quantity: any) => {
     // ✅ Only endpoint path — baseURL is already set
     const res = await api.post(
       `/AppAccess/Buy?shareId=${shareId}&quantity=${quantity}`,
+      {
+        shareId,
+        quantity,
+      },
     );
     return res.data;
   } catch (error: any) {

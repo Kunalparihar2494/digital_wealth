@@ -11,6 +11,11 @@ export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
   deviceId = deviceId ?? "test";
   const res = await api.post(
     `/AppAccess/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`,
+    {
+      contact,
+      pin,
+      deviceId,
+    },
   );
   if (!res?.data) throw new Error("Login failed: no response data received.");
   return res.data;
