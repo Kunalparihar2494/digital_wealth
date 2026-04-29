@@ -12,10 +12,10 @@ import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
 import PrimaryButton from "@/src/components/PrimaryButton";
 
 import LegalConsentText from "@/src/components/shared/LegalCOnsentText";
-import { confirmBiometricLogin, loginUser } from "@/src/services/auth";
+import { confirmBiometricLogin, loginUser, refreshAccessToken } from "@/src/services/auth";
 import { authenticateBiometric } from "@/src/services/biometricAuth";
 import { useAuthStore } from "@/src/store/auth.store";
-import { saveBiometricData } from "@/src/store/biometric.store";
+import { getBiometricData, saveBiometricData } from "@/src/store/biometric.store";
 import { useUserStore } from "@/src/store/user.store";
 import { getDeviceId } from "@/src/utils/device";
 import { Fingerprint } from "lucide-react-native";
@@ -30,6 +30,14 @@ export default function Login() {
             router.replace("/(tabs)/home");
         });
     };
+
+    const navigateToLogin = () => {
+        InteractionManager.runAfterInteractions(() => {
+            router.replace("/(auth)/login");
+        });
+    };
+
+
 
     const { setAuth } = useAuthStore();
     const { setUser } = useUserStore();
@@ -111,6 +119,41 @@ export default function Login() {
         }
     };
 
+    /* =======================
+       BIOMETRIC LOGIN
+    ======================= */
+    const handleBiometric = async () => {
+        try {
+            const auth = await authenticateBiometric();
+            if (!auth.success) return;
+
+            const bio = await getBiometricData();
+
+            if (!bio) {
+                Alert.alert("Login required", "Use mobile & PIN once");
+                return;
+            }
+
+            const data = await refreshAccessToken(
+                bio.refreshToken,
+                bio.deviceId,
+            );
+
+            if (!data?.token) {
+                throw new Error("Biometric login failed: missing auth token.");
+            }
+
+            await AsyncStorage.setItem("accessToken", data.token);
+            await setAuth(data.token);
+            setUser(data.user);
+
+            navigateToHome();
+        } catch {
+            Alert.alert("Session expired", "Please login again");
+            navigateToLogin();
+        }
+    }
+
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center">
@@ -156,7 +199,7 @@ export default function Login() {
                 <SocialAuthButton
                     icon={<Fingerprint size={22} color="#10b981" />}
                     label=""
-                    onPress={() => Alert.alert("Biometric", "Please login with PIN first to enable this.")}
+                    onPress={handleBiometric}
                 />
             </View>
 
