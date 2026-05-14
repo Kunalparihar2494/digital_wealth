@@ -1,4 +1,4 @@
-package com.digitalwealth.app
+package com.digitalwealth.in
 
 import android.app.Application
 import android.content.res.Configuration
