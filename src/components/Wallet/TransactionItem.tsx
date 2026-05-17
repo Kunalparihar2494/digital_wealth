@@ -1,3 +1,4 @@
+import React from "react";
 import { Text, View } from "react-native";
 
 type Props = {
@@ -53,7 +54,7 @@ export function TransactionItem({
                 className={`font-semibold ${statusColor === 'success' ? "text-emerald-600" : "text-red-600"
                     }`}
             >
-                {amount}
+                ₹{amount}
             </Text>
         </View>
     );

@@ -8,7 +8,7 @@ import { useUserStore } from "@/src/store/user.store";
 import { logout } from "@/src/utils/logout";
 import { getToken } from "@/src/utils/storage";
 import { router } from "expo-router";
-import { Contact, Delete, LogOut, User, Wallet } from "lucide-react-native";
+import { BadgeCheck, Contact, Delete, IdCard, LogOut, User, Wallet } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 
@@ -29,6 +29,7 @@ export default function ProfileScreen() {
             const tok = await getToken();
             setToken(tok)
         }
+        // console.log('USER INFO - ', user)
         fetchToken();
     }, []);
 
@@ -116,8 +117,22 @@ export default function ProfileScreen() {
                     /> */}
                     <AccountItem
                         label={user?.kycstatus ? `KYC is done` : `Kyc is Pending`}
+                        verified={user?.kycstatus !== 'Pending'}
                         icon={user?.kycstatus ? <User size={18} color="#4B5563" /> : <User size={18} color="#eb4034" />}
                         onPress={() => openURL(`https://digitalwealth.in/AppAccess/KYCPage`)}
+                    />
+                    <AccountItem
+                        label="PAN Details"
+                        verified={!!user?.panstatus}
+                        icon={<IdCard size={18} color="#4B5563" />}
+                        onPress={() => router.push("/(profile)/verifyPan")}
+
+                    />
+                    <AccountItem
+                        label="Adhar Details"
+                        verified={!!user?.aadharstatus}
+                        icon={<BadgeCheck size={18} color="#4B5563" />}
+                        onPress={() => router.push("/(profile)/verifyAadhar")}
                     />
                     <AccountItem
                         label="Delete Account"

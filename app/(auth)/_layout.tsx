@@ -2,7 +2,7 @@ import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 export default function AuthLayout() {
     const { loadUser } = useUserStore();

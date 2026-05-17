@@ -1,3 +1,4 @@
+import BackHandlerProvider from "@/src/utils/backhandlerprovider";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 import './global.css';
@@ -19,5 +20,11 @@ export default function RootLayout() {
     warmupNetwork();
   }, []);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }} />
+      <BackHandlerProvider />
+    </>
+  )
+
 }
