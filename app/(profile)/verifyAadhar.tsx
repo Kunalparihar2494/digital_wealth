@@ -84,7 +84,7 @@ export default function AadhaarVerifyScreen() {
     const handleNavigationChange = (navState: any) => {
         const url = navState.url;
 
-        console.log("WEBVIEW URL:", url);
+        // console.log("WEBVIEW URL:", url);
 
         // SUCCESS CASE
         if (
