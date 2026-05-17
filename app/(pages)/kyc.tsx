@@ -1,6 +1,7 @@
 import Header from "@/src/components/shared/Header";
 import { getToken } from "@/src/utils/storage";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+
 import { View } from "react-native";
 import { WebView } from "react-native-webview";
 

@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import api from "./api";
 
@@ -13,17 +14,31 @@ export const getShares = async (filterId = 0) => {
     const res = await api.get(
       `/AppAccess/allshares?includeFilters=${isFilter}&filterId=${id}`,
     );
-    const responseData = res?.data;
 
+    const responseData = res?.data;
+    // console.log("resposen data - ", responseData);
     // ✅ Detect webpage / login HTML response
     if (
-      typeof responseData === "string" &&
-      (responseData.includes("<html") ||
-        responseData.includes("<!DOCTYPE") ||
-        responseData.toLowerCase().includes("login"))
+      typeof responseData?.message === "string" &&
+      (responseData?.message.includes("<html") ||
+        responseData?.message.includes("<!DOCTYPE") ||
+        responseData?.message.toLowerCase().includes("login") ||
+        responseData?.message
+          .toLowerCase()
+          .includes("your session has expired"))
     ) {
-      // console.warn("HTML page returned instead of API JSON");
+      console.warn("Session expired. Logging out...");
+
+      // Clear storage
+      await AsyncStorage.multiRemove([
+        "accessToken",
+        "refreshToken",
+        "userData",
+      ]);
+
+      // Redirect to login
       router.replace("/(auth)/login");
+
       return;
     }
 

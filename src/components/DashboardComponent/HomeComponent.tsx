@@ -1,14 +1,48 @@
 // src/components/Dashboard/HomeComponent.tsx
 import { useShareStore } from "@/src/store/shares.store";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
 import ShareGridCard from "../shared/ShareLongCard";
 import HomeSearchSection from "./HomeSearchSection";
 
+
+
 export function HomeComponent({ data }: { data: any }) {
+    // const [isKycPending, setIsKycPending] = useState(false);
     const shares = data?.Shares ?? [];
     const { fetchShares } = useShareStore();
+
+    // useEffect(() => {
+    //     checkKycStatus();
+    // }, []);
+
+    // const checkKycStatus = async () => {
+    //     try {
+    //         const status = await AsyncStorage.getItem("kycStatus");
+
+    //         const parsedStatus = status
+    //             ? JSON.parse(status)
+    //             : null;
+
+    //         console.log("KYC STATUS:", parsedStatus);
+
+    //         // Pending if null / undefined / empty
+    //         if (
+    //             parsedStatus === null ||
+    //             parsedStatus === undefined ||
+    //             parsedStatus === "" ||
+    //             parsedStatus === "Pending"
+    //         ) {
+    //             setIsKycPending(true);
+    //         } else {
+    //             setIsKycPending(false);
+    //         }
+    //     } catch (error) {
+    //         console.log("KYC ERROR:", error);
+    //     }
+    // };
+
 
     const filterValue = useMemo(() => {
         const apiFilters = data?.Filters ?? [];
@@ -55,6 +89,14 @@ export function HomeComponent({ data }: { data: any }) {
                 isProfit={summary.isProfit}
             /> */}
             {/* <HomeSearchSection shares={shares} /> */}
+
+            {/* {isKycPending && (
+                <View style={styles.kycBanner}>
+                    <Text style={styles.kycText}>
+                        Your KYC is pending. Please complete KYC.
+                    </Text>
+                </View>
+            )} */}
 
             <HomeSearchSection
                 value={search}
@@ -116,3 +158,20 @@ export function HomeComponent({ data }: { data: any }) {
         </ScrollView>
     );
 }
+
+
+// const styles = StyleSheet.create({
+//     kycBanner: {
+//         backgroundColor: "#FFF3CD",
+//         padding: 12,
+//         margin: 10,
+//         borderRadius: 8,
+//         borderWidth: 1,
+//         borderColor: "#FFE69C",
+//     },
+//     kycText: {
+//         color: "#856404",
+//         fontWeight: "600",
+//         textAlign: "center",
+//     },
+// });

@@ -99,14 +99,17 @@ export default function Wallet() {
                         {/* ACTION BUTTONS */}
                         <View className="flex-row gap-4 mb-6 mt-4">
                             <FundsActionButton
-                                onPress={() => router.replace("/(pages)/addFunds")}
-                                label="Add funds"
-                                color="#22C55E"
+                                onPress={() =>
+                                    router.replace("/(pages)/addFunds")
+                                }
+                                label="Add Funds"
+                                color="#16A34A"
                             />
+
                             <FundsActionButton
                                 label="Withdraw"
-                                color="#3B82F6"
-                                onPress={() => router.replace("/(pages)/addFunds")}
+                                color="#2563EB"
+                                disabled={true}
                             />
                         </View>
 

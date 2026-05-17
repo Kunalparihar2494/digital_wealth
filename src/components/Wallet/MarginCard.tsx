@@ -1,4 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
 import { Text, TouchableOpacity } from "react-native";
 
 //  colors={["#e5e7eb", "#9ca3af"]}
@@ -11,7 +12,7 @@ export function MarginCard({ amount }: { amount?: number }) {
             style={{ borderRadius: 10 }}
         >
             <Text className="text-gray-700 text-sm mb-2">
-                Available margin
+                Available Balance
             </Text>
 
             <Text className="text-gray-700 text-3xl font-bold mb-2">

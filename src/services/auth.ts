@@ -18,6 +18,7 @@ export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
     },
   );
   if (!res?.data) throw new Error("Login failed: no response data received.");
+  // await AsyncStorage.setItem("kycStatus", JSON.stringify(res?.data?.kycstatus));
   return res.data;
 };
 

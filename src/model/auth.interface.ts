@@ -9,19 +9,39 @@ export interface IUser {
 
 export interface IUserDetail {
   id: number;
+
   username: string;
   fullName: string;
   email: string;
+
   role: string;
   status: number;
-  kycstatus: boolean;
-  lastlogin: string;
-  createdByUserId: number;
+
+  // KYC
+  kycstatus: string;
+
+  // PAN
+  pannumber: string;
+  panstatus: boolean;
+
+  // Aadhaar
+  aadharnumber: string;
+  aadharstatus: boolean;
+
+  // Demat
+  dematAccountNumber: string;
+
+  // Verification
   isEmailVerified: boolean;
   isContactVerified: boolean;
+
+  // Audit
+  lastlogin: string;
+  createdByUserId: number;
   createdDate: string;
-  updatedByUserId: any;
-  updatedDate: any;
+
+  updatedByUserId: number | null;
+  updatedDate: string | null;
 }
 
 export interface LoginData {
