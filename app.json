@@ -2,24 +2,24 @@
   "expo": {
     "name": "DigitalWealth",
     "slug": "digital_wealth",
-    "version": "4.0.3",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/playstore.png",
     "scheme": "DigitalWealth",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
 
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.DigitalWealth.app",
+      "bundleIdentifier": "com.DigitalWealth.in",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
 
     "android": {
-      "package": "com.digitalwealth.app",
-      "versionCode": 7,
+      "package": "com.digitalwealth.in",
+      "versionCode": 1,
       "minSdkVersion": 24,
       "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
       "usesCleartextTraffic": true,
