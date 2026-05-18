@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
 import { useWalletStore } from "@/src/store/wallet.store";
+import { formatBalance } from "@/src/utils/portfolio.util";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ChevronLeft, Wallet } from "lucide-react-native";
@@ -150,7 +151,7 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                                     fontSize: 14,
                                 }}
                             >
-                                ₹{data?.balance}
+                                {formatBalance(data?.balance)}
                             </Text>
                         </TouchableOpacity>
                     )}

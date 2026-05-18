@@ -9,7 +9,7 @@ export type ProfitLossSummary = {
 };
 
 export function getProfitLossSummary(
-  holdings: IHoldingShares[]
+  holdings: IHoldingShares[],
 ): ProfitLossSummary {
   if (!holdings || holdings.length === 0) {
     return {
@@ -34,7 +34,7 @@ export function getProfitLossSummary(
 
   return {
     pnl: `${pnlValue >= 0 ? "+" : "-"}₹${Math.abs(pnlValue).toLocaleString(
-      "en-IN"
+      "en-IN",
     )}`,
     portfolioValue: `₹${totalCurrentValue.toLocaleString("en-IN")}`,
     percentage: `${pnlPercent.toFixed(2)}%`,
@@ -42,3 +42,24 @@ export function getProfitLossSummary(
     isProfit: pnlValue >= 0,
   };
 }
+
+export const formatBalance = (amount?: number | string) => {
+  const value = Number(amount || 0);
+
+  if (value >= 10000000) {
+    // Crores
+    return `₹${(value / 10000000).toFixed(value >= 100000000 ? 0 : 1)}Cr`;
+  }
+
+  if (value >= 100000) {
+    // Lakhs
+    return `₹${(value / 100000).toFixed(value >= 1000000 ? 0 : 1)}L`;
+  }
+
+  if (value >= 1000) {
+    // Thousands
+    return `₹${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}K`;
+  }
+
+  return `₹${value}`;
+};
