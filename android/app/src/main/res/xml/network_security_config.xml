@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+            <certificates src="@raw/sectigo_ca_dv" />
+            <certificates src="@raw/sectigo_root" />
+            <certificates src="@raw/digitalwealth_star" />
+            <certificates src="@raw/usertrust_ca" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

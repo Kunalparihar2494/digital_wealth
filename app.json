@@ -2,7 +2,7 @@
   "expo": {
     "name": "DigitalWealth",
     "slug": "digital_wealth",
-    "version": "1.0.0",
+    "version": "2.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/playstore.png",
     "scheme": "DigitalWealth",
@@ -19,7 +19,7 @@
 
     "android": {
       "package": "com.digitalwealth.in",
-      "versionCode": 1,
+      "versionCode": 3,
       "minSdkVersion": 24,
       "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
       "usesCleartextTraffic": true,
