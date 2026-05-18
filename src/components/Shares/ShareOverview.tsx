@@ -1,4 +1,5 @@
 // src/components/ShareDetail/ShareOverviewCard.tsx
+import React from "react";
 import { Image, Text, View } from "react-native";
 
 type Props = {
@@ -42,7 +43,7 @@ export default function ShareOverviewCard({ name, price, logo, minQuantity, chan
       <Text className="text-gray-500 mb-1">Last Transaction Price</Text>
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-3xl font-bold text-gray-900">{price}</Text>
+        <Text className="text-3xl font-bold text-gray-900">₹{price}</Text>
 
         <View className="bg-purple-100 px-3 py-1 rounded-full">
           <Text className="text-purple-700 font-medium">{change}</Text>

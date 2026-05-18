@@ -8,6 +8,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
     label: string;
+    value?: string;
     icon?: React.ReactNode;
     onPress?: () => void;
     verified?: boolean;
@@ -15,6 +16,7 @@ type Props = {
 
 export function AccountItem({
     label,
+    value,
     icon,
     onPress,
     verified,
@@ -31,6 +33,11 @@ export function AccountItem({
                 <Text className="text-gray-800 text-[15px] font-medium">
                     {label}
                 </Text>
+                {!!value && (
+                    <Text className="text-gray-500 text-[13px] mt-1">
+                        {value}
+                    </Text>
+                )}
             </View>
 
             <View className="flex-row items-center">

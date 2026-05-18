@@ -8,7 +8,7 @@ import { useUserStore } from "@/src/store/user.store";
 import { logout } from "@/src/utils/logout";
 import { getToken } from "@/src/utils/storage";
 import { router } from "expo-router";
-import { BadgeCheck, Contact, Delete, IdCard, LogOut, User, Wallet } from "lucide-react-native";
+import { BadgeCheck, BadgeIndianRupeeIcon, Contact, Delete, IdCard, LogOut, User, Wallet } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { Alert, Linking, ScrollView, View } from "react-native";
 
@@ -116,23 +116,32 @@ export default function ProfileScreen() {
                         icon={<File size={18} color="#4B5563" />}
                     /> */}
                     <AccountItem
-                        label={user?.kycstatus ? `KYC is done` : `Kyc is Pending`}
+                        label="KYC"
                         verified={user?.kycstatus !== 'Pending'}
                         icon={user?.kycstatus ? <User size={18} color="#4B5563" /> : <User size={18} color="#eb4034" />}
-                        onPress={() => openURL(`https://digitalwealth.in/AppAccess/KYCPage`)}
+                    // onPress={() => openURL(`https://digitalwealth.in/AppAccess/KYCPage`)}
                     />
                     <AccountItem
-                        label="PAN Details"
+                        label="PAN"
+                        value={user?.pannumber}
                         verified={!!user?.panstatus}
                         icon={<IdCard size={18} color="#4B5563" />}
                         onPress={() => router.push("/(profile)/verifyPan")}
 
                     />
                     <AccountItem
-                        label="Adhar Details"
+                        label="Aadhar"
+                        value={user?.aadharnumber}
                         verified={!!user?.aadharstatus}
                         icon={<BadgeCheck size={18} color="#4B5563" />}
                         onPress={() => router.push("/(profile)/verifyAadhar")}
+                    />
+                    <AccountItem
+                        label="Demat"
+                        value={user?.dematAccountNumber}
+                        verified={!!user?.dematAccountNumber}
+                        icon={<BadgeIndianRupeeIcon size={18} color="#4B5563" />}
+
                     />
                     <AccountItem
                         label="Delete Account"

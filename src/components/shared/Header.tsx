@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
+import { useWalletStore } from "@/src/store/wallet.store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { ChevronLeft, Wallet } from "lucide-react-native";
@@ -21,6 +22,11 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
     const logout = useAuthStore((s) => s.logout);
     const loadUser = useUserStore((s) => s.loadUser);
     const [isKycPending, setIsKycPending] = useState(false);
+    const { data, fetchBalance } = useWalletStore();
+    useEffect(() => {
+        fetchBalance();
+
+    }, []);
 
     useEffect(() => {
         loadUser();
@@ -93,7 +99,7 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                         <Bell size={20} color="#374151" />
                         <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
                     </TouchableOpacity> */}
-                    {isKycPending && (
+                    {/* {isKycPending && (
                         <TouchableOpacity
                             activeOpacity={0.85}
                             onPress={() => router.replace("/(tabs)/profile")}
@@ -107,7 +113,7 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                                 marginRight: 5
                             }}
                         >
-                            {/* <Wallet size={18} color="#FFFFFF" /> */}
+                            <Wallet size={18} color="#FFFFFF" />
 
                             <Text
                                 style={{
@@ -117,10 +123,10 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                                     fontSize: 12,
                                 }}
                             >
-                                KYC is Pending
+                                KYC
                             </Text>
                         </TouchableOpacity>
-                    )}
+                    )} */}
                     {showWallet && (
                         <TouchableOpacity
                             activeOpacity={0.85}
@@ -136,7 +142,7 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                         >
                             <Wallet size={18} color="#FFFFFF" />
 
-                            {/* <Text
+                            <Text
                                 style={{
                                     color: "#FFFFFF",
                                     fontWeight: "600",
@@ -144,8 +150,8 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                                     fontSize: 14,
                                 }}
                             >
-                                Wallet
-                            </Text> */}
+                                ₹{data?.balance}
+                            </Text>
                         </TouchableOpacity>
                     )}
                     {/* <TouchableOpacity className="p-2" onPress={handleLogout}>

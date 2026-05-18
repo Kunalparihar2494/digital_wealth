@@ -6,7 +6,8 @@ import ValuationSection from "@/src/components/Shares/Valuation";
 import { IShareDetail } from "@/src/model/shares.interface";
 import { useShareStore } from "@/src/store/shares.store";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+
 import { ScrollView, View } from "react-native";
 
 export default function ShareDetail() {
@@ -45,7 +46,7 @@ export default function ShareDetail() {
             name={share?.company ?? ''}
             price={(share?.price)?.toLocaleString() ?? '0'}
             logo={`https://digitalwealth.in/upload/${share?.logo}`}
-            change="10%"
+            change="-"
           />
         </View>
 
@@ -57,10 +58,10 @@ export default function ShareDetail() {
             peRatio="183.33"
           /> */}
           <ValuationSection
-            marketCap="39,380 Cr+"
-            yearLow="17"
-            yearHigh="39"
-            peRatio="183.33" minQuantity={"100"} />
+            marketCap="-"
+            yearLow="-"
+            yearHigh="-"
+            peRatio="-" minQuantity={"100"} />
 
         </View>
 
