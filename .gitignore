@@ -30,14 +30,29 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# Environment files - DO NOT COMMIT
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # typescript
 *.tsbuildinfo
 
-app-example
-
 # generated native folders
 /ios
 /android
+
+# app example
+app-example
+
+# OS
+Thumbs.db
+.DS_Store
