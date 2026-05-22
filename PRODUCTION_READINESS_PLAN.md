@@ -3,7 +3,7 @@
 
 **Status**: Not Production Ready  
 **Created**: 2026-05-22  
-**Priority**: HIGH
+**Priority**: CRITICAL
 
 ---
 
@@ -15,7 +15,8 @@
 5. [Code Quality & Standards](#5-code-quality--standards)
 6. [Documentation](#6-documentation)
 7. [Testing](#7-testing)
-8. [Deployment & Configuration](#8-deployment--configuration)
+8. [Implementation Timeline](#implementation-priority--timeline)
+9. [Verification Checklist](#verification-checklist---before-production)
 
 ---
 
@@ -23,61 +24,47 @@
 
 ### 🔴 CRITICAL: `.env` File Exposed
 
-**Problem**: The `.env` file is committed to the repository, exposing sensitive data:
+**Problem**: The `.env` file was committed to the repository, exposing:
 - `EXPO_PUBLIC_CLIENT_KEY=2cbd22fb7bXX`
 - `EXPO_PUBLIC_API_URL=https://digitalwealth.in/`
 
-**Impact**: Anyone with repo access can see API credentials and base URLs.
+**✅ ACTIONS COMPLETED**:
+- Updated `.gitignore` to exclude `.env` files
+- Created `.env.example` with placeholders
+- All future `.env` files will be ignored
 
-**Action Items**:
-
-#### Step 1: Update `.gitignore`
-```bash
-# File: .gitignore
-# Add these lines:
-.env
-.env.local
-.env.*.local
-.env.production
-.env.development
-*.local
-```
-
-#### Step 2: Create `.env.example`
-```bash
-# File: .env.example (commit this instead)
-EXPO_PUBLIC_API_URL=https://your-api-url.com/
-EXPO_PUBLIC_CLIENT_KEY=your_client_key_here
-EXPO_PUBLIC_ENV=production
-EXPO_PUBLIC_LOG_LEVEL=warn
-```
-
-**Timeline**: Immediate (before next deploy)
-**Complexity**: 🟢 Low
-**Verification**: `git rm --cached .env && git commit -m "Remove .env from tracking"`
+**Next Steps**:
+1. Locally, keep your real `.env` file (git will ignore it now)
+2. Always use `.env.example` for documentation
+3. Run git command to remove history: `git rm --cached .env && git commit -m "Remove .env from git tracking"`
+4. Regenerate your API keys as they were exposed
 
 ---
 
 ### 🔴 CRITICAL: Token Storage Not Secure
 
-**Problem**: Access tokens stored in plain AsyncStorage (unencrypted, world-readable):
-
+**Current Problem**:
 ```typescript
-// ❌ CURRENT - UNSAFE
+// ❌ UNSAFE - in src/store/auth.store.ts (line 15)
+await AsyncStorage.setItem("token", token);
+
+// ❌ UNSAFE - in src/services/api.ts (line 6)
 const token = await AsyncStorage.getItem("accessToken");
 ```
 
-AsyncStorage is meant for non-sensitive data. If device is compromised, tokens are easily extractable.
+AsyncStorage is **unencrypted and world-readable**. Tokens can be extracted from device.
 
-**Impact**: Account compromise if device is stolen or compromised.
-
-**Solution**: Use SecureStore for sensitive data
-
-#### Implementation Plan:
-
-**Step 1: Create Secure Storage Utility**
+**Good Pattern Already in Use**:
 ```typescript
-// File: src/utils/secureStorage.ts
+// ✅ CORRECT - in src/store/biometric.store.ts
+await SecureStore.setItemAsync(BIOMETRIC_REFRESH_TOKEN_KEY, refreshToken);
+```
+
+**🎯 IMPLEMENTATION PLAN**:
+
+#### Step 1: Create Secure Storage Utility
+```typescript
+// File: src/utils/secureStorage.ts (CREATE NEW)
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
@@ -101,7 +88,7 @@ export const secureStorage = {
         await SecureStore.setItemAsync(key, value);
       } catch (error) {
         console.warn(`Failed to store ${key} securely:`, error);
-        // Fallback to AsyncStorage (with warning)
+        // Fallback to AsyncStorage with warning
         await AsyncStorage.setItem(key, value);
       }
     }
@@ -128,7 +115,7 @@ export const secureStorage = {
       try {
         await SecureStore.deleteItemAsync(key);
       } catch (error) {
-        console.warn(`Failed to remove ${key} from secure store:`, error);
+        console.warn(`Failed to remove ${key}:`, error);
         await AsyncStorage.removeItem(key);
       }
     }
@@ -138,7 +125,7 @@ export const secureStorage = {
     if (Platform.OS === "web") {
       localStorage.clear();
     } else {
-      // SecureStore doesn't have clearAll, so clear individual items
+      // Clear individual items
       await Promise.all(
         Object.values(TOKEN_KEYS).map(key => this.removeToken(key))
       );
@@ -148,11 +135,31 @@ export const secureStorage = {
 };
 ```
 
-**Step 2: Update API Service**
+#### Step 2: Create Storage Constants
 ```typescript
-// File: src/services/api.ts (Updated)
+// File: src/constants/storage.ts (CREATE NEW)
+export const STORAGE_KEYS = {
+  // Authentication
+  ACCESS_TOKEN: "app_access_token",
+  REFRESH_TOKEN: "app_refresh_token",
+  TOKEN_EXPIRY: "app_token_expiry",
+  
+  // User Data
+  USER_DATA: "app_user_data",
+  USER_PREFERENCES: "app_user_preferences",
+  
+  // App State
+  DEVICE_ID: "app_device_id",
+  KYC_STATUS: "app_kyc_status",
+} as const;
+```
+
+#### Step 3: Update API Service
+```typescript
+// File: src/services/api.ts (UPDATE getHeaders function ONLY)
 import { secureStorage, TOKEN_KEYS } from "@/src/utils/secureStorage";
 
+// REPLACE the getHeaders function:
 const getHeaders = async () => {
   const token = await secureStorage.getToken(TOKEN_KEYS.ACCESS_TOKEN);
 
@@ -168,12 +175,11 @@ const getHeaders = async () => {
 };
 ```
 
-**Step 3: Update Auth Store**
+#### Step 4: Update Auth Store
 ```typescript
-// File: src/store/auth.store.ts (Updated)
+// File: src/store/auth.store.ts (REPLACE ENTIRE FILE)
 import { create } from "zustand";
 import { secureStorage, TOKEN_KEYS } from "@/src/utils/secureStorage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthState = {
   token: string | null;
@@ -185,7 +191,7 @@ type AuthState = {
   initializeAuth: () => Promise<void>;
 };
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   refreshToken: null,
   isAuthenticated: false,
@@ -207,82 +213,43 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initializeAuth: async () => {
     const token = await secureStorage.getToken(TOKEN_KEYS.ACCESS_TOKEN);
-    set({ 
-      token, 
-      isAuthenticated: !!token 
-    });
+    set({ token, isAuthenticated: !!token });
   },
 }));
 ```
 
 **Timeline**: 1-2 weeks
 **Complexity**: 🟡 Medium
-**Testing**: Test on iOS, Android, and Web separately
+**Testing**: Test on iOS, Android, Web separately
 
 ---
 
-### 🟡 MEDIUM: Inconsistent Token Keys
+### 🟡 MEDIUM: Inconsistent Token Keys Across Codebase
 
-**Problem**: Multiple token key names used throughout the codebase:
-```typescript
-AsyncStorage.getItem("token")           // app/index.tsx
-AsyncStorage.getItem("accessToken")     // api.ts
-"access_token"                          // tokenKeys.ts
-"token"                                 // auth.store.ts
+**Current Mess**:
+```
+"token"        → app/index.tsx (line 7)
+"accessToken"  → api.ts (line 6)
+"access_token" → tokenKeys.ts
+"token"        → auth.store.ts (line 17)
 ```
 
-**Solution**: Centralize all token constants
+**Fix**: Use constants everywhere
+
+Now that you have `STORAGE_KEYS` constant, update all files:
 
 ```typescript
-// File: src/constants/storage.ts
-export const STORAGE_KEYS = {
-  // Authentication
-  ACCESS_TOKEN: "app_access_token",
-  REFRESH_TOKEN: "app_refresh_token",
-  
-  // User Data
-  USER_DATA: "app_user_data",
-  USER_PREFERENCES: "app_user_preferences",
-  
-  // App State
-  DEVICE_ID: "app_device_id",
-  KYC_STATUS: "app_kyc_status",
-  
-  // Biometric
-  BIOMETRIC_ENABLED: "biometric_enabled",
-  BIOMETRIC_USER: "biometric_user",
-  BIOMETRIC_DEVICE: "biometric_device",
-  BIOMETRIC_REFRESH_TOKEN: "biometric_refresh_token",
-} as const;
+// Instead of: AsyncStorage.getItem("token")
+// Use: AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+
+// Instead of: await AsyncStorage.getItem("accessToken")
+// Use: await secureStorage.getToken(TOKEN_KEYS.ACCESS_TOKEN)
 ```
 
-**Timeline**: 1 week
-**Complexity**: 🟢 Low
-**Verification**: Search for "AsyncStorage.getItem", "SecureStore" to ensure all use constants
-
----
-
-### 🟡 MEDIUM: API Credentials in Code
-
-**Problem**: Hard-coded API base URL and CLIENT_KEY:
-```typescript
-const BASE_URL = "https://digitalwealth.in";
-const CLIENT_KEY = process.env.EXPO_PUBLIC_CLIENT_KEY;
-```
-
-**Better Approach**:
-```typescript
-// File: src/config/api.config.ts
-export const API_CONFIG = {
-  baseURL: process.env.EXPO_PUBLIC_API_URL || "https://digitalwealth.in",
-  clientKey: process.env.EXPO_PUBLIC_CLIENT_KEY,
-  timeout: 30000,
-  retryAttempts: 3,
-  retryDelay: 1000,
-  environment: process.env.EXPO_PUBLIC_ENV || "production",
-  logLevel: (process.env.EXPO_PUBLIC_LOG_LEVEL || "warn") as LogLevel,
-};
-```
+**Files to Update**:
+- `app/index.tsx` - Line 7
+- `src/utils/logout.ts` - Update storage references
+- Any other files accessing storage
 
 **Timeline**: 1 week
 **Complexity**: 🟢 Low
@@ -291,50 +258,61 @@ export const API_CONFIG = {
 
 ## 2. Token & Authentication Management
 
-### 🔴 CRITICAL: Token Inconsistency Issues
+### 🔴 CRITICAL: No Token Refresh or Expiry Logic
 
-**Current Issues**:
-1. `app/index.tsx` checks for `"token"` but auth store saves `"accessToken"`
-2. No refresh token handling
-3. No token expiration logic
+**Current Problems**:
+1. `loginUser()` in auth.ts doesn't store tokens in auth store
+2. No token expiry checking
+3. No refresh token handling
+4. App will crash on 401 without automatic re-login
 
-**Implementation Plan**:
+**🎯 IMPLEMENTATION PLAN**:
 
-#### Step 1: Create Comprehensive Auth Service
+#### Step 1: Create Auth Service
 ```typescript
-// File: src/services/auth-service.ts
+// File: src/services/auth-service.ts (CREATE NEW)
 import { secureStorage, TOKEN_KEYS } from "@/src/utils/secureStorage";
 import { useAuthStore } from "@/src/store/auth.store";
 import api from "@/src/services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "@/src/constants/storage";
 
 interface TokenResponse {
   accessToken: string;
   refreshToken: string;
-  expiresIn: number;
+  expiresIn?: number;
+  token?: string; // For API compatibility
 }
 
+/**
+ * Centralized authentication service
+ * Handles token storage, refresh, and logout
+ */
 export class AuthService {
   /**
-   * Store tokens after login
+   * Store tokens after successful login
    */
   static async storeTokens(response: TokenResponse): Promise<void> {
-    await secureStorage.setToken(TOKEN_KEYS.ACCESS_TOKEN, response.accessToken);
+    const accessToken = response.accessToken || response.token;
+    if (!accessToken) throw new Error("No access token in response");
+
+    await secureStorage.setToken(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
     await secureStorage.setToken(TOKEN_KEYS.REFRESH_TOKEN, response.refreshToken);
     
-    // Store expiry time
-    const expiryTime = Date.now() + response.expiresIn * 1000;
-    await AsyncStorage.setItem("tokenExpiryTime", expiryTime.toString());
+    // Store expiry time (default 1 hour)
+    const expiryTime = Date.now() + (response.expiresIn || 3600) * 1000;
+    await AsyncStorage.setItem(STORAGE_KEYS.TOKEN_EXPIRY, expiryTime.toString());
     
-    useAuthStore.getState().setAuth(response.accessToken, response.refreshToken);
+    // Update auth store
+    useAuthStore.getState().setAuth(accessToken, response.refreshToken);
   }
 
   /**
-   * Check if token is expired
+   * Check if current token is expired
    */
   static async isTokenExpired(): Promise<boolean> {
-    const expiryTime = await AsyncStorage.getItem("tokenExpiryTime");
+    const expiryTime = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
     if (!expiryTime) return true;
-    
     return Date.now() > parseInt(expiryTime);
   }
 
@@ -343,15 +321,18 @@ export class AuthService {
    */
   static async refreshTokenIfNeeded(): Promise<boolean> {
     if (!(await this.isTokenExpired())) {
-      return true;
+      return true; // Token still valid
     }
 
     try {
       const refreshToken = await secureStorage.getToken(TOKEN_KEYS.REFRESH_TOKEN);
       if (!refreshToken) return false;
 
-      const response = await api.post("/AppAccess/refresh-token", {
+      const deviceId = await secureStorage.getToken(TOKEN_KEYS.DEVICE_ID);
+      
+      const response = await api.post("/AppAccess/refresh", {
         refreshToken,
+        deviceId,
       });
 
       if (response?.data?.accessToken) {
@@ -368,20 +349,47 @@ export class AuthService {
   }
 
   /**
-   * Logout user and clear all auth data
+   * Logout user and clear all sensitive data
    */
   static async logout(): Promise<void> {
     await secureStorage.clearAll();
-    await AsyncStorage.removeItem("tokenExpiryTime");
+    await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
     useAuthStore.getState().logout();
-    // Navigation handled in app
   }
 }
 ```
 
-#### Step 2: Fix Root Index File
+#### Step 2: Update Login Function
 ```typescript
-// File: app/index.tsx (Updated)
+// File: src/services/auth.ts (UPDATE loginUser function ONLY)
+import { AuthService } from "./auth-service";
+
+export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
+  deviceId = deviceId ?? "test";
+  
+  const res = await api.post(
+    `/AppAccess/Applogin?MobileNumber=${contact}&password=${pin}&DeviceId=${deviceId}`,
+    { contact, pin, deviceId },
+  );
+  
+  if (!res?.data) {
+    throw new Error("Login failed: no response data received.");
+  }
+  
+  // ✅ Store tokens securely after successful login
+  await AuthService.storeTokens({
+    accessToken: res.data.token,
+    refreshToken: res.data.refreshToken,
+    expiresIn: res.data.expiresIn || 3600,
+  });
+  
+  return res.data;
+};
+```
+
+#### Step 3: Fix App Root Initialization
+```typescript
+// File: app/index.tsx (REPLACE ENTIRE FILE)
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Redirect } from "expo-router";
@@ -401,7 +409,7 @@ export default function Index() {
         // Refresh token if needed
         await AuthService.refreshTokenIfNeeded();
       } catch (error) {
-        console.error("Auth initialization failed:", error);
+        console.error("Auth initialization error:", error);
       } finally {
         setIsInitializing(false);
       }
@@ -426,24 +434,24 @@ export default function Index() {
 
 **Timeline**: 2-3 weeks
 **Complexity**: 🟡 Medium
-**Testing**: 
-- Test token expiry & refresh flow
-- Test logout on all platforms
-- Test with expired tokens
+**Critical Testing Points**:
+- Login stores tokens securely
+- Token refresh works on app restart
+- Logout clears everything
+- 401 errors trigger re-login
 
 ---
 
 ## 3. Error Handling & Resilience
 
-### 🔴 CRITICAL: No Global Error Boundary
+### 🔴 CRITICAL: No Error Boundary - App Crashes on Errors
 
-**Problem**: Errors crash the app without graceful fallback.
+**Problem**: Single error anywhere crashes entire app with no recovery.
 
 **Solution**: Implement Error Boundary
 
-#### Step 1: Create Error Boundary Component
 ```typescript
-// File: src/components/ErrorBoundary.tsx
+// File: src/components/ErrorBoundary.tsx (CREATE NEW)
 import React, { ReactNode } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { AlertCircle } from "lucide-react-native";
@@ -469,20 +477,18 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error("Error Boundary caught an error:", error, errorInfo);
-    this.setState({
-      error,
-      errorInfo,
-    });
+    console.error("Error caught by boundary:", error);
+    console.error("Error info:", errorInfo);
+    this.setState({ error, errorInfo });
 
-    // TODO: Send error to monitoring service (Sentry, etc.)
+    // TODO: Send to error tracking service (Sentry, Datadog, etc.)
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <ScrollView className="flex-1 bg-white">
-          <View className="flex-1 justify-center items-center p-6">
+          <View className="flex-1 justify-center items-center p-6 min-h-screen">
             <AlertCircle size={48} color="#ef4444" />
             
             <Text className="text-xl font-bold text-gray-900 mt-4">
@@ -490,7 +496,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </Text>
             
             <Text className="text-gray-600 mt-2 text-center">
-              We encountered an unexpected error. Please try again.
+              We encountered an unexpected error. 
+              Please try again or restart the app.
             </Text>
 
             {__DEV__ && this.state.error && (
@@ -517,9 +524,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
 }
 ```
 
-#### Step 2: Wrap Root Layout
 ```typescript
-// File: app/_layout.tsx
+// File: app/_layout.tsx (UPDATE - wrap Stack with ErrorBoundary)
 import { ErrorBoundary } from "@/src/components/ErrorBoundary";
 import { Stack } from "expo-router";
 
@@ -537,20 +543,17 @@ export default function RootLayout() {
 
 ---
 
-### 🟡 MEDIUM: API Error Handling
+### 🟡 MEDIUM: Inconsistent API Error Handling
 
-**Problem**: API errors logged but not handled consistently.
-
-**Solution**: Create Error Response Handler
+**Problem**: Errors logged to console but not handled consistently.
 
 ```typescript
-// File: src/services/error-handler.ts
+// File: src/services/error-handler.ts (CREATE NEW)
 export class AppError extends Error {
   constructor(
     public code: string,
     public statusCode: number,
     message: string,
-    public originalError?: unknown
   ) {
     super(message);
     this.name = "AppError";
@@ -563,59 +566,49 @@ export const handleApiError = (error: any): AppError => {
   }
 
   if (error.response) {
-    // Server responded with error status
     const status = error.response.status;
     const message = error.response.data?.message || "Server error";
 
     if (status === 401) {
       return new AppError(
         "UNAUTHORIZED",
-        status,
-        "Unauthorized - Please login again",
-        error
+        401,
+        "Session expired. Please login again."
       );
     }
 
     if (status === 403) {
       return new AppError(
         "FORBIDDEN",
-        status,
-        "You don't have permission to perform this action",
-        error
+        403,
+        "You don't have permission to perform this action"
       );
     }
 
     if (status === 404) {
-      return new AppError("NOT_FOUND", status, "Resource not found", error);
+      return new AppError("NOT_FOUND", 404, "Resource not found");
     }
 
     if (status === 422) {
-      return new AppError(
-        "VALIDATION_ERROR",
-        status,
-        message,
-        error
-      );
+      return new AppError("VALIDATION_ERROR", 422, message);
     }
 
     if (status >= 500) {
       return new AppError(
         "SERVER_ERROR",
         status,
-        "Server error - Please try again later",
-        error
+        "Server error. Please try again later."
       );
     }
 
-    return new AppError("API_ERROR", status, message, error);
+    return new AppError("API_ERROR", status, message);
   }
 
   if (error.request && !error.response) {
     return new AppError(
       "NETWORK_ERROR",
       0,
-      "Network error - Check your connection",
-      error
+      "Network error. Check your internet connection."
     );
   }
 
@@ -623,32 +616,30 @@ export const handleApiError = (error: any): AppError => {
     return new AppError(
       "TIMEOUT_ERROR",
       0,
-      "Request timeout - Please try again",
-      error
+      "Request timeout. Please try again."
     );
   }
 
   return new AppError(
     "UNKNOWN_ERROR",
     0,
-    "An unexpected error occurred",
-    error
+    error.message || "An unexpected error occurred"
   );
 };
 ```
 
-#### Usage in Components
+**Usage in Components**:
 ```typescript
-// File: app/(tabs)/shares.tsx (Updated)
+// Example: app/(tabs)/shares.tsx
+import { handleApiError } from "@/src/services/error-handler";
+
 const fetchShares = async () => {
   try {
     setLoading(true);
-    setError(null);
     const data = await getShares();
     setShares(data?.Shares ?? []);
   } catch (err) {
     const appError = handleApiError(err);
-    setError(appError.message);
     Alert.alert("Error", appError.message);
   } finally {
     setLoading(false);
@@ -661,80 +652,23 @@ const fetchShares = async () => {
 
 ---
 
-### 🟡 MEDIUM: API Retry Logic
-
-**Problem**: Failed requests not retried automatically.
-
-**Solution**: Add Retry Mechanism
-
-```typescript
-// File: src/utils/retry.ts
-export interface RetryConfig {
-  maxAttempts: number;
-  delayMs: number;
-  backoffMultiplier: number;
-  maxDelayMs: number;
-}
-
-const DEFAULT_RETRY_CONFIG: RetryConfig = {
-  maxAttempts: 3,
-  delayMs: 1000,
-  backoffMultiplier: 2,
-  maxDelayMs: 10000,
-};
-
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  config: Partial<RetryConfig> = {}
-): Promise<T> {
-  const finalConfig = { ...DEFAULT_RETRY_CONFIG, ...config };
-  let lastError: any;
-
-  for (let attempt = 0; attempt < finalConfig.maxAttempts; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error;
-
-      if (attempt < finalConfig.maxAttempts - 1) {
-        const delay = Math.min(
-          finalConfig.delayMs * Math.pow(finalConfig.backoffMultiplier, attempt),
-          finalConfig.maxDelayMs
-        );
-
-        console.log(
-          `Attempt ${attempt + 1} failed. Retrying in ${delay}ms...`,
-          error
-        );
-
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-
-  throw lastError;
-}
-```
-
-**Timeline**: 1 week
-**Complexity**: 🟡 Medium
-
----
-
 ## 4. Type Safety
 
-### 🟡 MEDIUM: Using `any` Types
+### 🟡 MEDIUM: Remove `any` Types
 
-**Problem**:
+**Current Issues**:
 ```typescript
-// ❌ BAD
-export default function PrimaryButton({ title, onPress, disabled }: any) {
+// ❌ BAD - src/components/PrimaryButton.tsx
+export default function PrimaryButton({ title, onPress, disabled }: any)
+
+// ❌ BAD - src/services/auth.ts line 47
+export const createAccount = async (payload: any)
 ```
 
-**Solution**: Define proper interfaces
+**Fix**:
 
 ```typescript
-// File: src/types/components.ts
+// File: src/types/components.ts (CREATE NEW)
 export interface PrimaryButtonProps {
   title: string;
   onPress: () => void | Promise<void>;
@@ -743,7 +677,7 @@ export interface PrimaryButtonProps {
   variant?: "primary" | "secondary" | "danger";
 }
 
-// File: src/components/PrimaryButton.tsx (Updated)
+// File: src/components/PrimaryButton.tsx (UPDATE)
 import React from "react";
 import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { PrimaryButtonProps } from "@/src/types/components";
@@ -783,70 +717,38 @@ export default function PrimaryButton({
 }
 ```
 
-**Timeline**: 2-3 weeks (gradual)
-**Complexity**: 🟡 Medium
-**Tool**: Use TypeScript strict mode & ESLint
-
----
-
-### 🟡 MEDIUM: Missing Interface Documentation
-
-**Create comprehensive type definitions**:
-
 ```typescript
-// File: src/types/index.ts
-/**
- * Auth & User Types
- */
-export interface IUser {
-  id: string;
-  contact: string;
-  fullName: string;
-  email: string;
-  kycStatus: "pending" | "verified" | "rejected";
-  createdAt: string;
+// File: src/types/auth.ts (CREATE NEW)
+export interface SignupPayload {
+  FullName: string;
+  Contact: string;
+  Password: string;
+  ConfirmPassword: string;
+  PartnerId: number;
+  Email: string;
+  Role: "Retail" | "Partner";
 }
 
-export interface IAuthResponse {
-  message: string;
-  token: string;
-  refreshToken: string;
-  user: IUser;
-}
-
-/**
- * API Response Types
- */
-export interface IApiResponse<T = any> {
-  data: T;
-  status: number;
-  message?: string;
-}
-
-/**
- * Error Types
- */
-export interface IApiError {
-  code: string;
-  message: string;
-  statusCode: number;
-}
+// File: src/services/auth.ts (UPDATE createAccount function)
+export const createAccount = async (payload: SignupPayload) => {
+  const res = await api.post(
+    `/AppAccess/CreateAccount?key=${CLIENT_KEY}`,
+    payload,
+  );
+  return res.data;
+};
 ```
 
-**Timeline**: 2 weeks
+**Timeline**: 2-3 weeks
 **Complexity**: 🟡 Medium
 
 ---
 
 ## 5. Code Quality & Standards
 
-### 🟡 MEDIUM: No ESLint Rules Enforced
-
-**Current ESLint Config**: Only extends `eslint-config-expo`
-
-**Enhanced Config**:
+### Update ESLint Config
 ```javascript
-// File: eslint.config.js (Updated)
+// File: eslint.config.js (UPDATE)
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
@@ -867,7 +769,7 @@ module.exports = defineConfig([
       'no-eval': 'error',
       'no-implied-eval': 'error',
       
-      // Console logs in production
+      // Console logs
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       
       // Unused variables
@@ -880,14 +782,6 @@ module.exports = defineConfig([
 ]);
 ```
 
-**Add Pre-commit Hook**:
-```bash
-# File: .husky/pre-commit
-#!/bin/sh
-npm run lint -- --fix
-npm run type-check
-```
-
 **Timeline**: 1 week
 **Complexity**: 🟢 Low
 
@@ -895,115 +789,62 @@ npm run type-check
 
 ## 6. Documentation
 
-### 🔴 CRITICAL: No Project Documentation
+Create comprehensive README:
 
-**Create README.md**:
 ```markdown
-# Digital Wealth - Unlisted IPO & Shares Platform
+# Digital Wealth - Unlisted IPO Platform
 
-## Overview
-A React Native/Expo app for trading unlisted IPO shares and managing investment portfolio.
+## Quick Start
+
+\`\`\`bash
+npm install
+cp .env.example .env  # Edit with your API credentials
+npm run start
+\`\`\`
+
+## Running on Different Platforms
+
+\`\`\`bash
+npm run ios              # iOS simulator/device
+npm run android          # Android emulator/device  
+npm run web              # Web browser
+npm run lint             # Check code quality
+\`\`\`
 
 ## Architecture
 
-### Project Structure
-\`\`\`
-src/
-├── components/       # Reusable UI components
-├── services/        # API & external services
-├── store/           # Zustand state management
-├── screens/         # Screen components
-├── utils/           # Helper functions
-├── types/           # TypeScript interfaces
-└── constants/       # App constants
+### Key Technologies
+- **React Native** + **Expo** - Cross-platform mobile
+- **TypeScript** - Type-safe code
+- **Zustand** - State management
+- **NativeWind** - Tailwind CSS for React Native
+- **Expo Router** - File-based routing
 
-app/
-├── (auth)/          # Auth screens
-├── (tabs)/          # Tab navigation screens
-├── (pages)/         # Other pages
-└── (legal)/         # Legal documents
-\`\`\`
+### Security
+- ✅ Tokens stored in SecureStore (encrypted)
+- ✅ HTTPS for all API calls
+- ✅ Input validation on forms
+- ✅ Error boundary for crash recovery
 
-### Authentication Flow
-1. User logs in with mobile + PIN
-2. OTP verification
-3. Access & Refresh tokens stored securely
-4. Token refresh on expiry
-5. Auto-logout on 401
+### Key Files
 
-## Setup
+| File | Purpose |
+|------|----------|
+| \`src/utils/secureStorage.ts\` | Secure token management |
+| \`src/services/auth-service.ts\` | Auth logic & token refresh |
+| \`src/store/auth.store.ts\` | Auth state management |
+| \`src/services/api.ts\` | HTTP client configuration |
+| \`src/services/error-handler.ts\` | API error handling |
+| \`app/index.tsx\` | App initialization & routing |
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Expo CLI
+## Authentication Flow
 
-### Installation
-\`\`\`bash
-npm install
-\`\`\`
-
-### Environment Variables
-\`\`\`bash
-cp .env.example .env
-# Edit .env with your values
-\`\`\`
-
-### Running the App
-\`\`\`bash
-# Development
-npm run start
-
-# iOS
-npm run ios
-
-# Android
-npm run android
-
-# Web
-npm run web
-\`\`\`
-
-## API Integration
-
-### Base URL
-- Development: \`https://dev-api.digitalwealth.in\`
-- Production: \`https://api.digitalwealth.in\`
-
-### Authentication Headers
-\`\`\`
-Authorization: Bearer <access_token>
-Content-Type: application/json
-\`\`\`
-
-### Error Handling
-See \`src/services/error-handler.ts\`
-
-## Testing
-
-### Unit Tests
-\`\`\`bash
-npm run test
-\`\`\`
-
-### E2E Tests
-\`\`\`bash
-npm run test:e2e
-\`\`\`
-
-## Security
-
-- Tokens stored in SecureStore (encrypted)
-- API requests use HTTPS
-- Input validation on all forms
-- XSS protection via React
-
-## Performance
-
-- Lazy loading screens
-- Memoized components
-- Image optimization
-- Bundle size: < 50MB
+1. User enters mobile + PIN
+2. OTP sent & verified
+3. Account created or existing login
+4. Tokens stored securely in SecureStore
+5. Token auto-refreshed on app restart if expired
+6. Auto-logout on 401 Unauthorized
 
 ## Deployment
 
@@ -1017,17 +858,18 @@ eas build --platform ios --auto-submit
 eas build --platform android
 \`\`\`
 
-## Contributing
+## Testing
 
-1. Create feature branch
-2. Follow TypeScript strict mode
-3. Add tests for new features
-4. Submit PR for review
+\`\`\`bash
+npm run test
+\`\`\`
 
 ## Support
 
-For issues, contact: support@digitalwealth.in
-```
+📧 Email: support@digitalwealth.in
+📱 Issues: Open GitHub issue
+📚 Docs: See PRODUCTION_READINESS_PLAN.md
+\`\`\`
 
 **Timeline**: 1 week
 **Complexity**: 🟢 Low
@@ -1036,202 +878,145 @@ For issues, contact: support@digitalwealth.in
 
 ## 7. Testing
 
-### 🔴 CRITICAL: No Tests
-
-**Setup Testing Framework**:
-
+### Setup Jest Testing Framework
 ```bash
-npm install --save-dev jest @testing-library/react-native @testing-library/jest-native
+npm install --save-dev jest @testing-library/react-native @types/jest
 ```
 
-```json
-{
-  "jest": {
-    "preset": "react-native",
-    "testEnvironment": "node",
-    "moduleFileExtensions": ["ts", "tsx", "js"],
-    "testMatch": ["**/__tests__/**/*.test.ts?(x)"],
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts"
-    ]
-  }
-}
-```
-
-#### Sample Test
+Create basic test:
 ```typescript
 // File: src/services/__tests__/auth-service.test.ts
 import { AuthService } from "@/src/services/auth-service";
-import { secureStorage } from "@/src/utils/secureStorage";
-
-jest.mock("@/src/utils/secureStorage");
 
 describe("AuthService", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe("storeTokens", () => {
-    it("should store tokens securely", async () => {
-      const tokens = {
-        accessToken: "access_123",
-        refreshToken: "refresh_123",
-        expiresIn: 3600,
-      };
-
-      await AuthService.storeTokens(tokens);
-
-      expect(secureStorage.setToken).toHaveBeenCalledWith(
-        TOKEN_KEYS.ACCESS_TOKEN,
-        "access_123"
-      );
-    });
+  it("should check if token is expired", async () => {
+    const result = await AuthService.isTokenExpired();
+    expect(typeof result).toBe("boolean");
   });
 });
 ```
 
-**Timeline**: 3-4 weeks
-**Complexity**: 🟡 Medium
-**Coverage Goal**: 70%+
-
----
-
-## 8. Deployment & Configuration
-
-### 🟡 MEDIUM: No Build Configuration
-
-**Create Build Profiles**:
-
-```json
-// File: eas.json (Enhanced)
-{
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_ENV": "development",
-        "EXPO_PUBLIC_API_URL": "https://dev-api.digitalwealth.in"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_ENV": "staging",
-        "EXPO_PUBLIC_API_URL": "https://staging-api.digitalwealth.in"
-      }
-    },
-    "production": {
-      "distribution": "store",
-      "env": {
-        "EXPO_PUBLIC_ENV": "production",
-        "EXPO_PUBLIC_API_URL": "https://api.digitalwealth.in"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "bundleIdentifier": "com.digitalwealth.app"
-      },
-      "android": {
-        "package": "com.digitalwealth.app"
-      }
-    }
-  }
-}
-```
-
-**Timeline**: 2 weeks
+**Timeline**: 3-4 weeks (phased)
 **Complexity**: 🟡 Medium
 
 ---
 
 ## Implementation Priority & Timeline
 
-### Phase 1: Critical Security (Week 1-2)
-- [x] Remove `.env` from git
-- [x] Implement SecureStore for tokens
-- [x] Fix token inconsistency
-- **Estimated**: 2 weeks
+### ⚠️ Phase 1: Critical Security (Week 1-2) - START HERE
+✅ DONE:
+- `.gitignore` updated
+- `.env.example` created
 
-### Phase 2: Error Handling & Resilience (Week 3-4)
-- [x] Add Error Boundary
-- [x] Implement error handler service
-- [x] Add retry logic
-- **Estimated**: 2 weeks
+TODO:
+- [ ] Create `src/utils/secureStorage.ts`
+- [ ] Create `src/constants/storage.ts`
+- [ ] Update `src/services/api.ts` (getHeaders)
+- [ ] Update `src/store/auth.store.ts`
 
-### Phase 3: Code Quality (Week 5-6)
-- [x] Remove `any` types
-- [x] Add proper TypeScript interfaces
-- [x] Enhance ESLint config
-- **Estimated**: 2 weeks
+### Phase 2: Auth & Token Refresh (Week 3-4)
+- [ ] Create `src/services/auth-service.ts`
+- [ ] Update `src/services/auth.ts` (loginUser)
+- [ ] Fix `app/index.tsx`
+- [ ] Test token refresh flow
 
-### Phase 4: Testing (Week 7-10)
-- [x] Setup Jest & React Testing Library
-- [x] Add unit tests (70% coverage)
-- [x] Add E2E tests for critical flows
-- **Estimated**: 4 weeks
+### Phase 3: Error Handling (Week 5-6)
+- [ ] Create `src/components/ErrorBoundary.tsx`
+- [ ] Create `src/services/error-handler.ts`
+- [ ] Update API error handling
 
-### Phase 5: Documentation & Deployment (Week 11-12)
-- [x] Complete README
-- [x] API documentation
-- [x] Setup CI/CD
-- [x] Build configurations
-- **Estimated**: 2 weeks
+### Phase 4: Code Quality (Week 7-8)
+- [ ] Remove `any` types
+- [ ] Create TypeScript interfaces
+- [ ] Update ESLint config
 
-**Total Timeline**: 12 weeks
-**Team Size**: 1-2 developers
+### Phase 5: Testing (Week 9-12)
+- [ ] Setup Jest
+- [ ] Add unit tests (70%+ coverage)
 
----
+### Phase 6: Documentation (Week 13-14)
+- [ ] Update README
+- [ ] API documentation
 
-## Verification Checklist
-
-Before deploying to production, verify:
-
-- [ ] No `.env` file in git
-- [ ] All tokens stored in SecureStore
-- [ ] Error boundary implemented
-- [ ] API errors handled with proper messages
-- [ ] No `any` types in critical code paths
-- [ ] Unit tests pass (70%+ coverage)
-- [ ] E2E tests for auth flow pass
-- [ ] All secrets in environment variables
-- [ ] ESLint passes without warnings
-- [ ] App doesn't crash on network errors
-- [ ] Token refresh works correctly
-- [ ] Logout clears all sensitive data
-- [ ] Privacy policy & terms filled in
-- [ ] Release notes prepared
-- [ ] App version bumped
+**Total**: 14 weeks | **Team**: 1-2 developers
 
 ---
 
-## Tools & Resources
+## Verification Checklist - Before Production
 
 ### Security
-- [OWASP Mobile Top 10](https://owasp.org/www-project-mobile-top-10/)
-- [Expo Security](https://docs.expo.dev/guides/security/)
+- [ ] No `.env` in git (check git history)
+- [ ] `.env.example` exists and committed
+- [ ] All tokens in SecureStore
+- [ ] No API keys hard-coded
+- [ ] No passwords in logs
 
-### Testing
-- [Jest Documentation](https://jestjs.io/)
-- [React Native Testing](https://reactnative.dev/docs/testing-overview)
+### Authentication
+- [ ] Login securely stores tokens
+- [ ] Token refresh works correctly
+- [ ] Logout clears all sensitive data
+- [ ] 401 triggers automatic re-login
+- [ ] Biometric login tested
 
-### Monitoring
-- [Sentry](https://sentry.io/) - Error tracking
-- [LogRocket](https://logrocket.com/) - Session replay
-- [Datadog](https://www.datadoghq.com/) - APM
+### Error Handling
+- [ ] Error boundary catches crashes
+- [ ] App doesn't crash on network errors
+- [ ] Users see friendly error messages
+- [ ] Errors logged properly
+- [ ] Timeout handling works
 
 ### Code Quality
-- [SonarQube](https://www.sonarqube.org/) - Code analysis
-- [CodeClimate](https://codeclimate.com/) - CI integration
+- [ ] No `any` types in critical paths
+- [ ] ESLint passes
+- [ ] TypeScript strict mode enabled
+- [ ] All functions properly typed
+- [ ] No unused imports
+
+### Testing
+- [ ] Unit tests pass (70%+ coverage)
+- [ ] Auth flow tested end-to-end
+- [ ] Tested on iOS, Android, Web
+
+### Documentation
+- [ ] README complete
+- [ ] Setup instructions clear
+- [ ] API documented
+- [ ] Release notes prepared
 
 ---
 
-## Questions & Support
+## Next Immediate Steps
 
-For clarification on any item, reach out to the team lead.
+1. **This Week**:
+   ```bash
+   # You already have these files:
+   # ✅ .gitignore - Updated
+   # ✅ .env.example - Created
+   # ✅ PRODUCTION_READINESS_PLAN.md - This file
+   ```
 
-**Last Updated**: 2026-05-22
-**Status**: Draft - Ready for Review
+2. **Next Week - Start Phase 1**:
+   - Create `src/utils/secureStorage.ts`
+   - Create `src/constants/storage.ts`
+   - Update `src/services/api.ts`
+   - Update `src/store/auth.store.ts`
+
+3. **Test After Each Phase**:
+   - Manual testing on device
+   - Check app logs for errors
+   - Verify token storage works
+
+---
+
+## Resources & Documentation
+
+- [Expo SecureStore API](https://docs.expo.dev/modules/expo-secure-store/)
+- [Expo Security Guide](https://docs.expo.dev/guides/security/)
+- [React Native Security](https://reactnative.dev/docs/security)
+- [OWASP Mobile Top 10](https://owasp.org/www-project-mobile-top-10/)
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: 2026-05-22  
+**Status**: Ready for Implementation
