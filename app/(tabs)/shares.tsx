@@ -5,7 +5,8 @@ import SharePopup from "@/src/components/shared/SharePopup";
 import ShareSearch from "@/src/components/shared/ShareSearch";
 import { IShare, IShareDetail } from "@/src/model/shares.interface";
 import { getShares } from "@/src/services/shares";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { ActivityIndicator, Alert, FlatList, Text, View } from "react-native";
 
 export default function Shares() {
