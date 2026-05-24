@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { secureStorage, TOKEN_KEYS } from "@/src/utils/secureStorage";
 
 const USER_KEY = "userData";
 const TOKEN_KEY = "token";
@@ -26,7 +27,7 @@ export const getUser = async () => {
 // ✅ Save token
 export const saveToken = async (token: string) => {
   try {
-    await AsyncStorage.setItem(TOKEN_KEY, token);
+    await secureStorage.setToken(TOKEN_KEYS.ACCESS_TOKEN, token);
   } catch (err) {
     console.error("Error saving token:", err);
   }
@@ -35,7 +36,7 @@ export const saveToken = async (token: string) => {
 // ✅ Get token
 export const getToken = async () => {
   try {
-    return await AsyncStorage.getItem(TOKEN_KEY);
+    return await secureStorage.getToken(TOKEN_KEYS.ACCESS_TOKEN);
   } catch (err) {
     console.error("Error getting token:", err);
     return null;
@@ -46,6 +47,8 @@ export const getToken = async () => {
 export const clearUserData = async () => {
   try {
     await AsyncStorage.multiRemove([USER_KEY, TOKEN_KEY]);
+    await secureStorage.removeToken(TOKEN_KEYS.ACCESS_TOKEN);
+    await secureStorage.removeToken(TOKEN_KEYS.REFRESH_TOKEN);
   } catch (err) {
     console.error("Error clearing storage:", err);
   }

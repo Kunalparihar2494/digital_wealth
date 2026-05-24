@@ -1,27 +1,37 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { AuthService } from "@/src/services/auth-service";
+import { useAuthStore } from "@/src/store/auth.store";
 
 export default function Index() {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const { isAuthenticated, initializeAuth } = useAuthStore();
 
   useEffect(() => {
-    const checkToken = async () => {
-      const t = await AsyncStorage.getItem("token");
-      setToken(t);
-      setLoading(false);
+    const initialize = async () => {
+      try {
+        await initializeAuth();
+        await AuthService.refreshTokenIfNeeded();
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setIsInitializing(false);
+      }
     };
-    checkToken();
-  }, []);
 
-  if (loading)
+    initialize();
+  }, [initializeAuth]);
+
+  if (isInitializing) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#2563eb" />
       </View>
     );
+  }
 
-  return <Redirect href={token ? "/(tabs)/home" : "/(auth)/login"} />;
+  return (
+    <Redirect href={isAuthenticated ? "/(tabs)/home" : "/(auth)/login"} />
+  );
 }

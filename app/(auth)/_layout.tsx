@@ -1,22 +1,21 @@
 import { useAuthStore } from "@/src/store/auth.store";
 import { useUserStore } from "@/src/store/user.store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
 
 export default function AuthLayout() {
     const { loadUser } = useUserStore();
-    const { setAuth } = useAuthStore();
+    const { initializeAuth, getToken } = useAuthStore();
 
     useEffect(() => {
         (async () => {
-            const token = await AsyncStorage.getItem("accessToken");
+            await initializeAuth();
+            const token = await getToken();
             if (token) {
-                setAuth(token);
                 await loadUser();
             }
         })();
-    }, []);
+    }, [getToken, initializeAuth, loadUser]);
     return (
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="login" />

@@ -4,6 +4,7 @@ import ShareCard from "@/src/components/shared/ShareCard";
 import SharePopup from "@/src/components/shared/SharePopup";
 import ShareSearch from "@/src/components/shared/ShareSearch";
 import { IShare, IShareDetail } from "@/src/model/shares.interface";
+import { handleApiError } from "@/src/services/error-handler";
 import { getShares } from "@/src/services/shares";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -26,7 +27,8 @@ export default function Shares() {
             const data: IShare = await getShares();
             setShares(data?.Shares ?? []);
         } catch (err) {
-            Alert.alert("Error", "Unable to load shares");
+            const appError = handleApiError(err);
+            Alert.alert("Error", appError.message);
         } finally {
             setLoading(false);
         }

@@ -1,10 +1,10 @@
 // src/services/api.ts
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { secureStorage, TOKEN_KEYS } from "@/src/utils/secureStorage";
 
 const BASE_URL = "https://digitalwealth.in";
 
 const getHeaders = async () => {
-  const token = await AsyncStorage.getItem("accessToken");
+  const token = await secureStorage.getToken(TOKEN_KEYS.ACCESS_TOKEN);
 
   return {
     "Content-Type": "application/json",
@@ -32,7 +32,7 @@ const handleResponse = async (
   try {
     parsedData = responseText ? JSON.parse(responseText) : {};
     // console.log("API SUCCESS DATA:", parsedData);
-  } catch (e) {
+  } catch {
     // console.log("API PARSE ERROR. RAW TEXT:", responseText);
     parsedData = { message: responseText };
   }
@@ -45,7 +45,7 @@ const handleResponse = async (
 
 const api = {
   // ---------------- POST ----------------
-  post: async (endpoint: string, body: any) => {
+  post: async (endpoint: string, body?: unknown) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -69,13 +69,13 @@ const api = {
       });
 
       return await handleResponse(response, timeoutId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
-        console.log("POST API ERROR: Request Timeout");
+      if (error instanceof Error && error.name === "AbortError") {
+        console.error("POST API ERROR: Request Timeout");
       } else {
-        console.log("POST API ERROR:", error);
+        console.error("POST API ERROR:", error);
       }
 
       throw error;
@@ -103,13 +103,13 @@ const api = {
       });
 
       return await handleResponse(response, timeoutId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
-        console.log("GET API ERROR: Request Timeout");
+      if (error instanceof Error && error.name === "AbortError") {
+        console.error("GET API ERROR: Request Timeout");
       } else {
-        console.log("GET API ERROR:", JSON.stringify(error, null, 2));
+        console.error("GET API ERROR:", JSON.stringify(error, null, 2));
       }
 
       throw error;
@@ -117,7 +117,7 @@ const api = {
   },
 
   // ---------------- PUT ----------------
-  put: async (endpoint: string, body: any) => {
+  put: async (endpoint: string, body?: unknown) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -138,13 +138,13 @@ const api = {
       });
 
       return await handleResponse(response, timeoutId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
-        console.log("PUT API ERROR: Request Timeout");
+      if (error instanceof Error && error.name === "AbortError") {
+        console.error("PUT API ERROR: Request Timeout");
       } else {
-        console.log("PUT API ERROR:", JSON.stringify(error, null, 2));
+        console.error("PUT API ERROR:", JSON.stringify(error, null, 2));
       }
 
       throw error;

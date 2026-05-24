@@ -3,7 +3,9 @@ import {
   LoginData,
   SignupData,
 } from "../model/auth.interface";
+import { SignupPayload } from "@/src/types/auth";
 import api from "./api";
+import { AuthService } from "./auth-service";
 
 const CLIENT_KEY = process.env.EXPO_PUBLIC_CLIENT_KEY;
 
@@ -18,7 +20,11 @@ export const loginUser = async ({ contact, pin, deviceId }: LoginData) => {
     },
   );
   if (!res?.data) throw new Error("Login failed: no response data received.");
-  // await AsyncStorage.setItem("kycStatus", JSON.stringify(res?.data?.kycstatus));
+  await AuthService.storeTokens({
+    accessToken: res.data.token,
+    refreshToken: res.data.refreshToken || res.data.refreshtoken,
+    expiresIn: res.data.expiresIn || 3600,
+  });
   return res.data;
 };
 
@@ -44,7 +50,7 @@ export const verifyOtp = async (mobile: string, otp: string) => {
   return res.data;
 };
 
-export const createAccount = async (payload: any) => {
+export const createAccount = async (payload: SignupPayload) => {
   const res = await api.post(
     `/AppAccess/CreateAccount?key=${CLIENT_KEY}`,
     payload,

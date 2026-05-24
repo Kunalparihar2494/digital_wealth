@@ -1,7 +1,8 @@
 import BackHandlerProvider from "@/src/utils/backhandlerprovider";
+import { ErrorBoundary } from "@/src/components/ErrorBoundary";
 import { Stack } from "expo-router";
 import React, { useEffect } from "react";
-import './global.css';
+import "./global.css";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -21,10 +22,9 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <Stack screenOptions={{ headerShown: false }} />
       <BackHandlerProvider />
-    </>
-  )
-
+    </ErrorBoundary>
+  );
 }

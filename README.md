@@ -1,50 +1,81 @@
-# Welcome to your Expo app 👋
+# Digital Wealth - Unlisted IPO Platform
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick Start
 
 ```bash
-npm run reset-project
+npm install
+cp .env.example .env
+npm run start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Running on Different Platforms
 
-## Learn more
+```bash
+npm run ios
+npm run android
+npm run web
+npm run lint
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Architecture
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Key Technologies
 
-## Join the community
+- **React Native** + **Expo** - Cross-platform mobile
+- **TypeScript** - Type-safe code
+- **Zustand** - State management
+- **NativeWind** - Tailwind CSS for React Native
+- **Expo Router** - File-based routing
 
-Join our community of developers creating universal apps.
+### Security
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Tokens stored in SecureStore on mobile
+- HTTPS for API calls
+- Input validation on forms
+- Error boundary for crash recovery
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/utils/secureStorage.ts` | Secure token management |
+| `src/services/auth-service.ts` | Auth logic and token refresh |
+| `src/store/auth.store.ts` | Auth state management |
+| `src/services/api.ts` | HTTP client configuration |
+| `src/services/error-handler.ts` | API error handling |
+| `app/index.tsx` | App initialization and routing |
+
+## Authentication Flow
+
+1. User enters mobile and PIN.
+2. Login response returns auth tokens.
+3. Tokens are stored securely.
+4. Auth state is restored on app startup.
+5. Token refresh runs when the stored token is expired.
+6. Logout clears sensitive auth data.
+
+## Deployment
+
+### iOS
+
+```bash
+eas build --platform ios --auto-submit
+```
+
+### Android
+
+```bash
+eas build --platform android
+```
+
+## Testing
+
+```bash
+npm run test
+```
+
+## Support
+
+Email: support@digitalwealth.in
+Issues: Open a GitHub issue.
+Docs: See `PRODUCTION_READINESS_PLAN.md`.

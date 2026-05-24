@@ -93,7 +93,7 @@ export default function Signup() {
                     ConfirmPassword: pass2,
                     PartnerId: 0,
                     Email: email,
-                    Role: 'Retail'
+                    Role: "Retail" as const,
                 };
 
                 const response = await createAccount(payload);

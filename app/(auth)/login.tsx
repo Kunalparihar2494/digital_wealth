@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -12,6 +11,7 @@ import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
 import PrimaryButton from "@/src/components/PrimaryButton";
 
 import LegalConsentText from "@/src/components/shared/LegalCOnsentText";
+import { AuthService } from "@/src/services/auth-service";
 import { confirmBiometricLogin, loginUser, refreshAccessToken } from "@/src/services/auth";
 import { authenticateBiometric } from "@/src/services/biometricAuth";
 import { useAuthStore } from "@/src/store/auth.store";
@@ -67,8 +67,7 @@ export default function Login() {
             }
 
             // 🔥 FIX FOR OLD PHONES: Update state BEFORE navigation
-            await AsyncStorage.setItem("accessToken", data.token);
-            setAuth(data.token);
+            await setAuth(data.token, data.refreshToken || data.refreshtoken);
             setUser(data.user);
 
             await saveBiometricData({
@@ -143,8 +142,11 @@ export default function Login() {
                 throw new Error("Biometric login failed: missing auth token.");
             }
 
-            await AsyncStorage.setItem("accessToken", data.token);
-            await setAuth(data.token);
+            await AuthService.storeTokens({
+                accessToken: data.token,
+                refreshToken: data.refreshToken || data.refreshtoken || bio.refreshToken,
+                expiresIn: data.expiresIn || 3600,
+            });
             setUser(data.user);
 
             navigateToHome();
