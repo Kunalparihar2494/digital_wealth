@@ -70,7 +70,7 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
         >
             <View className="bg-gray-200 px-2 pb-2 flex-row items-center justify-between">
                 {/* LEFT */}
-                <View className="flex-row items-center">
+                <View className="flex-row items-center flex-1 mr-3">
                     {showBackButton && <TouchableOpacity className="p-2" onPress={() => router.replace("/(tabs)/home")}>
                         <ChevronLeft size={20} color="#374151" />
                     </TouchableOpacity>}
@@ -82,9 +82,13 @@ export default function Header({ showBackButton = false, onPress, showWallet = t
                         </TouchableOpacity>
                     </View>
 
-                    <View>
+                    <View className="flex-1">
                         <Text className="text-gray-500 text-xs">Welcome back</Text>
-                        <Text className="text-gray-900 font-semibold text-base">
+                        <Text
+                            className="text-gray-900 font-semibold text-base"
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
                             {user?.fullName ?? "User"}
                         </Text>
                     </View>
