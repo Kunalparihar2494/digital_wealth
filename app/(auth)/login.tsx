@@ -1,6 +1,6 @@
 import NetInfo from "@react-native-community/netinfo";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, InteractionManager, Text, View } from "react-native";
 
 import AuthBottomText from "@/src/components/Auth/AuthBottomText";
@@ -11,8 +11,8 @@ import SocialAuthButton from "@/src/components/Auth/SocialAuthButton";
 import PrimaryButton from "@/src/components/PrimaryButton";
 
 import LegalConsentText from "@/src/components/shared/LegalCOnsentText";
-import { AuthService } from "@/src/services/auth-service";
 import { confirmBiometricLogin, loginUser, refreshAccessToken } from "@/src/services/auth";
+import { AuthService } from "@/src/services/auth-service";
 import { authenticateBiometric } from "@/src/services/biometricAuth";
 import { useAuthStore } from "@/src/store/auth.store";
 import { getBiometricData, saveBiometricData } from "@/src/store/biometric.store";
@@ -37,6 +37,12 @@ export default function Login() {
         });
     };
 
+    useEffect(() => {
+        handleBiometric();
+        return () => {
+
+        };
+    }, []);
 
 
     const { setAuth } = useAuthStore();
