@@ -38,10 +38,20 @@ export default function Login() {
     };
 
     useEffect(() => {
-        handleBiometric();
-        return () => {
+        const initAuth = async () => {
+            try {
+                const deviceId = await getDeviceId();
 
+                // Only execute biometric authentication if deviceId exists and is valid
+                if (deviceId) {
+                    handleBiometric();
+                }
+            } catch (error) {
+                console.error("Authentication initialization failed:", error);
+            }
         };
+
+        initAuth();
     }, []);
 
 

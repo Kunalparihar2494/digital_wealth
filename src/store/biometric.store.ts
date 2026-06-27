@@ -14,7 +14,6 @@ export async function saveBiometricData({
   username: string;
   deviceId: string;
 }) {
-  console.log("secure calling");
   await SecureStore.setItemAsync(BIOMETRIC_REFRESH_TOKEN_KEY, refreshToken);
   await SecureStore.setItemAsync(
     BIOMETRIC_USER_KEY,
