@@ -4,6 +4,15 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "simulator": false
+      },
+      "distribution": "store"
+    },
     "debug-apk": {
       "android": {
         "buildType": "apk"

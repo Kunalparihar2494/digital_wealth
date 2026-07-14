@@ -11,7 +11,7 @@
 
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.DigitalWealth.in",
+      "bundleIdentifier": "com.digitalwealth.in",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
